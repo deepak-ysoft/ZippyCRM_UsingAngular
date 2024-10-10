@@ -21,7 +21,6 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              "src/favicon.ico",
               "src/assets",
               {
                 "glob": "**/*",
@@ -31,8 +30,7 @@
             ],
             "styles": [
               "src/styles.css",
-              "src/assets/crmtheme/style.css",
-              "src/assets/crmtheme/bootstrap/css/bootstrap.min.css"
+              "src/assets/crmtheme/style.css"
             ],
             "scripts": [],
             "server": "src/main.server.ts",

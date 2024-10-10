@@ -1,12 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [],
   templateUrl: './login.component.html',
-  styleUrls: [
-    './login.component.css'
-  ],
+  styleUrls: ['./login.component.css'],
 })
-export class LoginComponent {}
+export class LoginComponent {
+  router = inject(Router);
+  onLogin() {
+    this.router.navigateByUrl('index');
+  }
+}
