@@ -1,0 +1,65 @@
+<div class="pagetitle">
+  <h1>Customer List</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a router-link="/index">Home</a></li>
+      <li class="breadcrumb-item active">Customer List</li>
+    </ol>
+  </nav>
+</div>
+<section class="section">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Customer List</h5>
+          <p>
+            <a
+              asp-action="CreateEditCustomer"
+              class="fas fa-user-plus fa-xl text-primary float-end pe-1"
+              style="margin-top: -30px"
+            ></a>
+          </p>
+          <table id="customerDatatable" class="table" cellspacing="0">
+            <thead class="container-fluid text-center">
+              <tr class="row">
+                <th class="col">Imagepath</th>
+                <th class="col">FirstName</th>
+                <th class="col">MiddleName</th>
+                <th class="col">LastName</th>
+                <th class="col">DayOfBirth</th>
+                <th class="col">Cell</th>
+                <th class="col">Email</th>
+                <th class="col">Website</th>
+                <th class="col"></th>
+              </tr>
+            </thead>
+            <tbody
+              class="container-fluid text-center"
+              *ngIf="CustomerList && CustomerList.length > 0"
+            >
+              <tr
+                class="row"
+                *ngFor="let customer of CustomerList; let i = index"
+              >
+                <td class="col">
+                  <img src="{{ customer.imagepath }}" alt="Customer image" />
+                </td>
+                <td class="col cursor-pointer" (click)="getCustomerProfile(customer.cId)">
+                  >{{ customer.firstName }}
+                </td>
+                <td class="col">{{ customer.middleName }}</td>
+                <td class="col">{{ customer.lastName }}</td>
+                <td class="col">{{ customer.dayOfBirth }}</td>
+                <td class="col">{{ customer.cell }}</td>
+                <td class="col">{{ customer.email }}</td>
+                <td class="col">{{ customer.website }}</td>
+                <td class="col"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

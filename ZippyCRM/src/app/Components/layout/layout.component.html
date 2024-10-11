@@ -241,7 +241,7 @@
           <li>
             <a
               class="dropdown-item d-flex align-items-center"
-              href="users-profile.html"
+              routerLink="user-profile"
             >
               <i class="bi bi-person"></i>
               <span>My Profile</span>
@@ -254,7 +254,7 @@
           <li>
             <a
               class="dropdown-item d-flex align-items-center"
-              href="users-profile.html"
+              routerLink="user-profile"
             >
               <i class="bi bi-gear"></i>
               <span>Account Settings</span>
@@ -267,7 +267,7 @@
           <li>
             <a
               class="dropdown-item d-flex align-items-center"
-              href="pages-faq.html"
+              routerLink="user-profile-need-help"
             >
               <i class="bi bi-question-circle"></i>
               <span>Need Help?</span>
@@ -302,6 +302,12 @@
         <span>Dashboard</span>
       </a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link collapsed" routerLink="user-register">
+        <i class="bi bi-grid"></i>
+        <span>Register</span>
+      </a>
+    </li>
     <!-- End Dashboard Nav -->
 
     <!-- start Customer Nav -->
@@ -323,10 +329,12 @@
         data-bs-parent="#sidebar-nav"
       >
         <li>
-          <a> <i class="bi bi-circle"></i><span>Create Customer</span> </a>
+          <a routerLink="customer-register">
+            <i class="bi bi-circle"></i><span>Create Customer</span>
+          </a>
         </li>
         <li>
-          <a> <i class="bi bi-circle"></i><span>Customers</span> </a>
+          <a  routerLink="customer-list"> <i class="bi bi-circle"></i><span>Customers</span> </a>
         </li>
       </ul>
     </li>
@@ -571,7 +579,7 @@
     <li class="nav-heading">Pages</li>
 
     <li class="nav-item">
-      <a class="nav-link collapsed" href="users-profile.html">
+      <a class="nav-link collapsed" routerLink="user-profile">
         <i class="bi bi-person"></i>
         <span>Profile</span>
       </a>

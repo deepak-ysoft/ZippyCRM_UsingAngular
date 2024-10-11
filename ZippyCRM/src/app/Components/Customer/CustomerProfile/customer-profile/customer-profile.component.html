@@ -1,0 +1,263 @@
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+  integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+<section class="section">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body pt-4">
+          <div class="row">
+            <div class="col-auto">
+              <img
+                src="assets/img/Imagepath"
+                style="height: 45px; width: 45px"
+                class="rounded-circle"
+              />
+            </div>
+            <div class="col">
+              <div class="row">
+                <div class="col">FullName</div>
+              </div>
+              <div class="row">
+                <div class="col-auto">
+                  <i class="fa-solid fa-mobile-retro"></i> <span>Phone</span>
+                </div>
+                <div class="col-auto">
+                  <i class="fa-solid fa-envelope-open-text"></i>
+                  <span>Email</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <input type="hidden" id="customerId" value="CId" />
+          <hr />
+          <ul class="nav nav-tabs nav-tabs-bordered" id="profileTabs">
+            <li class="nav-item">
+              <button
+                class="nav-link active"
+                data-bs-toggle="tab"
+                (click)="getContactList(cId)"
+                data-bs-target="#profile-Contacts"
+              >
+                Contacts
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                onclick="loadAddressList()"
+                data-bs-target="#profile-Addresses"
+              >
+                Addresses
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                onclick="loadTaskList()"
+                data-bs-target="#profile-Task"
+              >
+                Task
+              </button>
+            </li>
+
+            <li class="nav-item">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                onclick="LoadDocumentList()"
+                data-bs-target="#profile-Documents"
+              >
+                Documents
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                onclick="loadNotesList()"
+                data-bs-target="#profile-Notes"
+              >
+                Notes
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                class="nav-link"
+                data-bs-toggle="tab"
+                onclick="initializeCalendar()"
+                data-bs-target="#profile-AppointMent"
+              >
+                AppointMents
+              </button>
+            </li>
+          </ul>
+          <div class="pt-3">
+            <div class="tab-content">
+              <div
+                class="tab-pane fade show active"
+                id="profile-Contacts"
+              ></div>
+            </div>
+            <div class="tab-content">
+              <div class="tab-pane fade show" id="profile-Addresses"></div>
+            </div>
+            <div class="tab-content">
+              <div class="tab-pane fade show" id="profile-Task"></div>
+            </div>
+            <div class="tab-content">
+              <div class="tab-pane fade show" id="profile-Documents"></div>
+            </div>
+            <div class="tab-content">
+              <div class="tab-pane fade show" id="profile-Notes"></div>
+            </div>
+
+            <div class="tab-content">
+              <div class="tab-pane fade show" id="profile-AppointMent">
+                _AppointmentCalendar
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div
+  class="modal fade"
+  id="addressModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="addressModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-landscape" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addressModalLabel">Hello cusName &nbsp!</h5>
+        <button
+          type="button"
+          class="btn-close btn-danger bg-danger"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Form content will be injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="contectModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="contectModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-landscape" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="contectModalLabel">Hello cusName &nbsp!</h5>
+        <button
+          type="button"
+          class="btn-close btn-danger bg-danger"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" id="modalBodycontect">
+        <!-- Form content will be injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="taskModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="taskModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-landscape" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addressModalLabel">Hello cusName &nbsp!</h5>
+        <button
+          type="button"
+          class="btn-close btn-danger bg-danger"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" id="modalBodyTASK">
+        <!-- Form content will be injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="notesModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="notesModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-landscape" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="NotesModalLabel">Hello cusName &nbsp!</h5>
+        <button
+          type="button"
+          class="btn-close btn-danger bg-danger"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" id="modalBodyNotes">
+        <!-- Form content will be injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="appointmentModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="appointmentModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-landscape" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="appointmentModalLabel">
+          Hello cusName &nbsp;
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-danger bg-danger"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" id="modalBodyAppointment">
+        <!-- Form content will be injected here -->
+      </div>
+    </div>
+  </div>
+</div>

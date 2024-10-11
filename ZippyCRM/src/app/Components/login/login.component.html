@@ -10,7 +10,6 @@
           >
             <div class="d-flex justify-content-center py-4">
               <a
-                href="index.html"
                 class="logo d-flex text-decoration-none align-items-center w-auto"
               >
                 <img src="assets/img/logo.png" alt="Logo" />
@@ -33,7 +32,7 @@
                 <form class="row g-3 needs-validation" novalidate>
                   <div class="col-12 mb-3">
                     <label for="yourUsername" class="form-label"
-                      >Username</label
+                      >Email</label
                     >
                     <div class="input-group has-validation">
                       <input
@@ -63,9 +62,15 @@
                         id="yourPassword"
                         required
                       />
+
                       <div class="invalid-feedback">
                         Please enter your password!
                       </div>
+                    </div>
+                    <div class="pt-2">
+                      <a routerLink="/user-forgot-password"
+                        >Forgot password ?</a
+                      >
                     </div>
                   </div>
 
@@ -78,6 +83,7 @@
                         value="true"
                         id="rememberMe"
                       />
+
                       <label class="form-check-label" for="rememberMe"
                         >Remember me</label
                       >

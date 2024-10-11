@@ -24,15 +24,18 @@
               "src/assets",
               {
                 "glob": "**/*",
-                "input": "src/app/assets",
+                "input": "src/assets",
                 "output": "assets"
               }
             ],
             "styles": [
               "src/styles.css",
-              "src/assets/crmtheme/style.css"
+              "src/assets/crmtheme/style.css",
+              "node_modules/datatables.net-dt/css/dataTables.dataTables.css"
             ],
-            "scripts": [],
+            "scripts": [
+              "node_modules/datatables.net/js/dataTables.min.js"
+            ],
             "server": "src/main.server.ts",
             "prerender": true,
             "ssr": {

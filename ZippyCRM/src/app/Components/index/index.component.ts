@@ -1,4 +1,5 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import * as echarts from 'echarts';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import {
@@ -24,7 +25,7 @@ export type ChartOptions = {
 @Component({
   selector: 'app-index',
   standalone: true,
-  imports: [NgApexchartsModule],
+  imports: [NgApexchartsModule, RouterLink],
   templateUrl: './index.component.html',
   styleUrl: './index.component.css',
 })
