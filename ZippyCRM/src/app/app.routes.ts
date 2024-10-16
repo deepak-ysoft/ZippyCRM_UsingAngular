@@ -10,6 +10,8 @@ import { UserResetPasswordComponent } from './Components/User/user-reset-passwor
 import { CustomerRegisterComponent } from './Components/Customer/customer-register/customer-register.component';
 import { CustomerListComponent } from './Components/Customer/customer-list/customer-list.component';
 import { CustomerProfileComponent } from './Components/Customer/CustomerProfile/customer-profile/customer-profile.component';
+import { CusContactComponent } from './Components/Customer/CustomerProfile/cus-contact/cus-contact.component';
+import { CustomerDetailsComponent } from './Components/Customer/customer-details/customer-details.component';
 
 export const routes: Routes = [
   //defualt route
@@ -59,8 +61,16 @@ export const routes: Routes = [
         component: CustomerListComponent,
       },
       {
+        path: 'customer-details',
+        component: CustomerDetailsComponent,
+      },
+      {
         path: 'customer-profile',
         component: CustomerProfileComponent,
+      },
+      {
+        path: 'customer-contact',
+        component: CusContactComponent,
       },
     ],
   },

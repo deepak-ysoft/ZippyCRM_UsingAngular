@@ -13,35 +13,37 @@
           <div class="row">
             <div class="col-auto">
               <img
-                src="assets/img/Imagepath"
+                src="assets/img/{{ customer?.imagepath }}"
                 style="height: 45px; width: 45px"
                 class="rounded-circle"
               />
             </div>
             <div class="col">
               <div class="row">
-                <div class="col">FullName</div>
+                <div class="col">{{ customer?.firstName }}</div>
               </div>
               <div class="row">
                 <div class="col-auto">
-                  <i class="fa-solid fa-mobile-retro"></i> <span>Phone</span>
+                  <i class="fa-solid fa-mobile-retro"></i>
+                  <span>{{ customer?.phone }}</span>
                 </div>
                 <div class="col-auto">
                   <i class="fa-solid fa-envelope-open-text"></i>
-                  <span>Email</span>
+                  <span>{{ customer?.email }}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <input type="hidden" id="customerId" value="CId" />
+          <input type="hidden" id="customerId" value="{{ customer?.cId }}" />
           <hr />
           <ul class="nav nav-tabs nav-tabs-bordered" id="profileTabs">
             <li class="nav-item">
               <button
-                class="nav-link active"
+                class="nav-link"
+                [class.active]="activeTab === '#profile-Contacts'"
                 data-bs-toggle="tab"
-                (click)="getContactList(cId)"
+                (click)="activateTab('#profile-Contacts', customer?.cId)"
                 data-bs-target="#profile-Contacts"
               >
                 Contacts
@@ -50,8 +52,9 @@
             <li class="nav-item">
               <button
                 class="nav-link"
+                [class.active]="activeTab === '#profile-Addresses'"
                 data-bs-toggle="tab"
-                onclick="loadAddressList()"
+                (click)="activateTab('#profile-Addresses', customer?.cId)"
                 data-bs-target="#profile-Addresses"
               >
                 Addresses
@@ -60,19 +63,20 @@
             <li class="nav-item">
               <button
                 class="nav-link"
+                [class.active]="activeTab === '#profile-Task'"
                 data-bs-toggle="tab"
-                onclick="loadTaskList()"
+                (click)="activateTab('#profile-Task', customer?.cId)"
                 data-bs-target="#profile-Task"
               >
                 Task
               </button>
             </li>
-
             <li class="nav-item">
               <button
                 class="nav-link"
+                [class.active]="activeTab === '#profile-Documents'"
                 data-bs-toggle="tab"
-                onclick="LoadDocumentList()"
+                (click)="activateTab('#profile-Documents', customer?.cId)"
                 data-bs-target="#profile-Documents"
               >
                 Documents
@@ -81,8 +85,9 @@
             <li class="nav-item">
               <button
                 class="nav-link"
+                [class.active]="activeTab === '#profile-Notes'"
                 data-bs-toggle="tab"
-                onclick="loadNotesList()"
+                (click)="activateTab('#profile-Notes', customer?.cId)"
                 data-bs-target="#profile-Notes"
               >
                 Notes
@@ -91,38 +96,67 @@
             <li class="nav-item">
               <button
                 class="nav-link"
+                [class.active]="activeTab === '#profile-AppointMent'"
                 data-bs-toggle="tab"
-                onclick="initializeCalendar()"
+                (click)="activateTab('#profile-AppointMent', customer?.cId)"
                 data-bs-target="#profile-AppointMent"
               >
                 AppointMents
               </button>
             </li>
           </ul>
-          <div class="pt-3">
-            <div class="tab-content">
-              <div
-                class="tab-pane fade show active"
-                id="profile-Contacts"
-              ></div>
-            </div>
-            <div class="tab-content">
-              <div class="tab-pane fade show" id="profile-Addresses"></div>
-            </div>
-            <div class="tab-content">
-              <div class="tab-pane fade show" id="profile-Task"></div>
-            </div>
-            <div class="tab-content">
-              <div class="tab-pane fade show" id="profile-Documents"></div>
-            </div>
-            <div class="tab-content">
-              <div class="tab-pane fade show" id="profile-Notes"></div>
-            </div>
 
-            <div class="tab-content">
-              <div class="tab-pane fade show" id="profile-AppointMent">
-                _AppointmentCalendar
-              </div>
+          <!-- Tab Contents -->
+          <div class="tab-content pt-3">
+            <div
+              class="tab-pane fade"
+              [class.show]="activeTab === '#profile-Contacts'"
+              [class.active]="activeTab === '#profile-Contacts'"
+              id="profile-Contacts"
+            >
+              <app-cus-contact [customerId]="customer?.cId"></app-cus-contact>
+            </div>
+            <div
+              class="tab-pane fade"
+              [class.show]="activeTab === '#profile-Addresses'"
+              [class.active]="activeTab === '#profile-Addresses'"
+              id="profile-Addresses"
+            >
+              <app-cus-addresses
+                [customerId]="customer?.cId"
+              ></app-cus-addresses>
+            </div>
+            <div
+              class="tab-pane fade"
+              [class.show]="activeTab === '#profile-Task'"
+              [class.active]="activeTab === '#profile-Task'"
+              id="profile-Task"
+            >
+              <app-cus-task [customerId]="customer?.cId"></app-cus-task>
+            </div>
+            <div
+              class="tab-pane fade"
+              [class.show]="activeTab === '#profile-Documents'"
+              [class.active]="activeTab === '#profile-Documents'"
+              id="profile-Documents"
+            ></div>
+            <div
+              class="tab-pane fade"
+              [class.show]="activeTab === '#profile-Notes'"
+              [class.active]="activeTab === '#profile-Notes'"
+              id="profile-Notes"
+            >
+              <app-cus-notes [customerId]="customer?.cId"></app-cus-notes>
+            </div>
+            <div
+              class="tab-pane fade"
+              [class.show]="activeTab === '#profile-AppointMent'"
+              [class.active]="activeTab === '#profile-AppointMent'"
+              id="profile-AppointMent"
+            >
+              <app-cus-appointment
+                [customerId]="customer?.cId"
+              ></app-cus-appointment>
             </div>
           </div>
         </div>

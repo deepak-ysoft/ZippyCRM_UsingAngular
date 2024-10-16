@@ -1,1 +1,40 @@
-<p>cus-addresses works!</p>
+<p>
+  <a id="createNewAddress" class="btn btn-primary">Create New Address</a>
+</p>
+<div class="row">
+  <div class="col-md-4" *ngFor="let address of addressList; let i = index">
+    <div class="card mb-4 shadow-sm">
+      <div class="card-body border">
+        <div class="row">
+          <h5 class="card-title ps-3" style="width: 30%">
+            {{ address.addressName }}
+          </h5>
+          <div class="col-4 float-end card-title ps-4" style="margin-left: 36%">
+            <div class="btn-group ms-3">
+              <a
+                data-id="@item.addressId"
+                id="editAddress"
+                class="fas fa-pencil-alt fa-md me-3"
+              ></a>
+              <a
+                data-id="@item.addressId"
+                id="addressDetails"
+                class="fa-solid fa-circle-info fa-lg text-info me-3 pt-2"
+              ></a>
+              <a
+                onclick="DeleteAddress(item.addressId)"
+                class="fas fa-trash fa-md text-danger"
+              ></a>
+            </div>
+          </div>
+        </div>
+        <p class="card-text">
+          <strong>Address:</strong>{{ address.address }}<br />
+          <strong>Email:</strong>{{ address.email }} <br />
+          <strong>Phone:</strong>{{ address.phone }}<br />
+          <strong>Mobile:</strong>{{ address.mobile }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

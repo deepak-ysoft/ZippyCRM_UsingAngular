@@ -1,1 +1,47 @@
-<p>cus-contact works!</p>
+<!-- Trigger Button -->
+<a
+  class="fas fa-user-plus fa-xl text-primary float-end pe-1 mt-3 text-success"
+  onclick="AddNewContact()"
+>
+</a>
+
+<table class="table">
+  <thead class="text-center">
+    <tr>
+      <th>Contact Name</th>
+      <th>Email</th>
+      <th>Title</th>
+      <th>Phone</th>
+      <th>Job Position</th>
+      <th>Mobile</th>
+      <th>Internal Notes</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody class="text-center">
+    <tr *ngFor="let contact of ContectList; let i = index">
+      <td>{{ contact.contactName }}</td>
+      <td>{{ contact.email }}</td>
+      <td>{{ contact.title }}</td>
+      <td>{{ contact.phone }}</td>
+      <td>{{ contact.jobPosition }}</td>
+      <td>{{ contact.mobile }}</td>
+      <td>{{ contact.internalNotes }}</td>
+      <td>
+        <a
+          class=" fas fa-pencil-alt fa-lg me-3"
+          onclick="EditContact(item.ContactId);"
+        ></a>
+        <a
+          class="fa-solid fa-circle-info fa-xl text-info"
+          onclick="DetailsContact(item.ContactId);"
+        ></a>
+        <a
+          class="fas fa-trash fa-lg text-danger ms-3"
+          onclick="DeleteContact(item.ContactId);"
+        ></a>
+      </td>
+    </tr>
+  </tbody>
+</table>

@@ -5,7 +5,7 @@
       <li class="breadcrumb-item">
         <a routerLink="/index">Home</a>
       </li>
-      <li class="breadcrumb-item active">ViewBag.msg</li>
+      <li class="breadcrumb-item active">{{ message }}</li>
     </ol>
   </nav>
 </div>
@@ -14,322 +14,247 @@
     <div class="col-lg-6">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">ViewBag.msg</h5>
+          <h5 class="card-title">{{ message }}</h5>
           <div class="row">
             <div>
-              <form
-                asp-action="CreateEditCustomer"
-                method="post"
-                enctype="multipart/form-data"
-              >
+              <form (ngSubmit)="onSubmit()">
                 <div class="row m-3">
                   <div>
                     <label class="m-2 ms-lg-0">Type</label>
                     <div class="form-group border btn">
-                      <label asp-for="Customer.Type" class="control-label"
-                        >Individual</label
-                      >
+                      <label class="control-label me-2">Individual</label>
                       <input
                         type="radio"
-                        name="Type"
+                        name="type"
                         class="me-3"
                         value="Individual"
-                        onclick="Individual()"
-                        id="typeIndividual"
+                        (click)="getAccountType('Individual')"
+                        [checked]="Individual"
                       />
-                      <label asp-for="Customer.Type" class="control-label"
-                        >Business</label
-                      >
+                      <label class="control-label me-2">Business</label>
                       <input
                         type="radio"
-                        name="Type"
+                        name="type"
+                        (click)="getAccountType('Commercial')"
                         value="Commercial"
-                        onclick="Individual()"
-                        id="typeCommercial"
+                        [checked]="Commercial"
                       />
-                      <span
-                        asp-validation-for="Customer.Type"
-                        class="text-danger"
-                      ></span>
                     </div>
                   </div>
                 </div>
+
                 <div class="row m-3">
-                  <div class="col-6">
+                  <div class="col-12" *ngIf="Individual">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.PAN"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label">PAN</label>
                       <input
-                        asp-for="Customer.PAN"
-                        id="panInput"
+                        [(ngModel)]="customer!.pan"
+                        name="pan"
                         class="form-control"
                       />
-                      <input asp-for="Customer.CId" type="hidden" />
-                      <span
-                        asp-validation-for="Customer.PAN"
-                        class="text-danger"
-                      ></span>
+                      <input
+                        [(ngModel)]="customer!.cId"
+                        name="cId"
+                        type="hidden"
+                      />
                     </div>
                   </div>
 
-                  <div class="col-6">
+                  <div class="col-12" *ngIf="Commercial">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.GST"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label">GST</label>
                       <input
-                        asp-for="Customer.GST"
-                        id="gstInput"
+                        [(ngModel)]="customer!.gst"
+                        name="gst"
                         class="form-control"
                       />
-                      <span
-                        asp-validation-for="Customer.GST"
-                        class="text-danger"
-                      ></span>
                     </div>
                   </div>
                 </div>
+
                 <div class="row m-3">
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Title"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label" for="title">Title</label>
                       <select
-                        asp-for="Customer.Title"
+                        id="title"
+                        [(ngModel)]="customer!.title"
+                        name="title"
                         class="form-control"
-                        asp-items="Model.TitleList"
-                      ></select>
-                      <span
-                        asp-validation-for="Customer.Title"
-                        class="text-danger"
-                      ></span>
+                      >
+                        <option
+                          *ngFor="let option of titleOptions"
+                          [value]="option.value"
+                        >
+                          {{ option.text }}
+                        </option>
+                      </select>
                     </div>
                   </div>
 
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.FirstName"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label">First Name</label>
                       <input
-                        asp-for="Customer.FirstName"
+                        name="{{ customer.firstName }}"
+                        [(ngModel)]="customer.firstName"
                         class="form-control"
                       />
-                      <span
-                        asp-validation-for="Customer.FirstName"
-                        class="text-danger"
-                      ></span>
                     </div>
                   </div>
                 </div>
                 <div class="row m-3">
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.MiddleName"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label">Middle Name</label>
                       <input
-                        asp-for="Customer.MiddleName"
+                        name="{{ customer.middleName }}"
+                        [(ngModel)]="customer.middleName"
                         placeholder="optional"
                         class="form-control"
                       />
-                      <span
-                        asp-validation-for="Customer.MiddleName"
-                        class="text-danger"
-                      ></span>
                     </div>
                   </div>
 
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.LastName"
-                        class="control-label"
-                      ></label>
-                      <input asp-for="Customer.LastName" class="form-control" />
-                      <span
-                        asp-validation-for="Customer.LastName"
-                        class="text-danger"
-                      ></span>
+                      <label class="control-label">Last Name</label>
+                      <input
+                        name="{{ customer.lastName }}"
+                        [(ngModel)]="customer.lastName"
+                        class="form-control"
+                      />
                     </div>
                   </div>
                 </div>
                 <div class="row m-3">
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Position"
-                        class="control-label"
-                      ></label>
-                      <input asp-for="Customer.Position" class="form-control" />
-                      <span
-                        asp-validation-for="Customer.Position"
-                        class="text-danger"
-                      ></span>
+                      <label class="control-label">Position</label>
+                      <input
+                        name="{{ customer.position }}"
+                        [(ngModel)]="customer.position"
+                        class="form-control"
+                      />
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Language"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label" for="gender">Gender</label>
                       <select
-                        asp-for="Customer.Language"
+                        id="gender"
+                        [(ngModel)]="customer!.gender"
+                        name="gender"
                         class="form-control"
-                        asp-items="Model.LanguageList"
-                      ></select>
-                      <span
-                        asp-validation-for="Customer.Language"
-                        class="text-danger"
-                      ></span>
+                      >
+                        <option
+                          *ngFor="let option of genderOptions"
+                          [value]="option.value"
+                        >
+                          {{ option.text }}
+                        </option>
+                      </select>
                     </div>
                   </div>
                 </div>
                 <div class="row m-3">
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Gender"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label" for="language">Gender</label>
                       <select
-                        asp-for="Customer.Gender"
+                        id="language"
+                        [(ngModel)]="customer!.language"
+                        name="language"
                         class="form-control"
-                        asp-items="Model.GenderList"
-                      ></select>
-                      <span
-                        asp-validation-for="Customer.Gender"
-                        class="text-danger"
-                      ></span>
+                      >
+                        <option
+                          *ngFor="let option of languageOptions"
+                          [value]="option.value"
+                        >
+                          {{ option.text }}
+                        </option>
+                      </select>
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.DayOfBirth"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label">Day Of Birth</label>
                       <input
                         type="date"
-                        asp-for="Customer.DayOfBirth"
+                        name="{{ customer.dayOfBirth }}"
+                        [(ngModel)]="customer.dayOfBirth"
                         class="form-control"
                       />
-                      <span
-                        asp-validation-for="Customer.DayOfBirth"
-                        class="text-danger"
-                      ></span>
                     </div>
                   </div>
                 </div>
                 <div class="row m-3">
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Phone"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label">Phone</label>
                       <input
-                        asp-for="Customer.Phone"
+                        name="{{ customer.phone }}"
+                        [(ngModel)]="customer.phone"
                         type="number"
-                        required
                         class="form-control"
                       />
-                      <span
-                        asp-validation-for="Customer.Phone"
-                        class="text-danger"
-                      ></span>
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.PhoneOther"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label"> Other Phone No.</label>
                       <input
-                        asp-for="Customer.PhoneOther"
+                        name="{{ customer.phoneOther }}"
+                        [(ngModel)]="customer.phoneOther"
                         type="number"
-                        required
                         class="form-control"
                       />
-                      <span
-                        asp-validation-for="Customer.PhoneOther"
-                        class="text-danger"
-                      ></span>
                     </div>
                   </div>
                 </div>
                 <div class="row m-3">
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Cell"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label">Cell</label>
                       <input
-                        asp-for="Customer.Cell"
+                        name="{{ customer.cell }}"
+                        [(ngModel)]="customer.cell"
                         type="number"
-                        required
                         class="form-control"
                       />
-                      <span
-                        asp-validation-for="Customer.Cell"
-                        class="text-danger"
-                      ></span>
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Fax"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label">Fax</label>
                       <input
-                        asp-for="Customer.Fax"
+                        name="{{ customer.fax }}"
+                        [(ngModel)]="customer.fax"
                         type="number"
-                        required
                         class="form-control"
                       />
-                      <span
-                        asp-validation-for="Customer.Fax"
-                        class="text-danger"
-                      ></span>
                     </div>
                   </div>
                 </div>
                 <div class="row m-3">
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Email"
-                        class="control-label"
-                      ></label>
-                      <input asp-for="Customer.Email" class="form-control" />
-                      <span
-                        asp-validation-for="Customer.Email"
-                        class="text-danger"
-                      ></span>
+                      <label class="control-label">Email</label>
+                      <input
+                        name="{{ customer.email }}"
+                        [(ngModel)]="customer.email"
+                        class="form-control"
+                      />
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Email2"
-                        class="control-label"
-                      ></label>
-                      <input asp-for="Customer.Email2" class="form-control" />
-                      <span
-                        asp-validation-for="Customer.Email2"
-                        class="text-danger"
-                      ></span>
+                      <label class="control-label">Second Email</label>
+                      <input
+                        name="{{ customer.email2 }}"
+                        [(ngModel)]="customer.email2"
+                        class="form-control"
+                      />
                     </div>
                   </div>
                   <div
@@ -340,50 +265,35 @@
                 <div class="row m-3">
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Website"
-                        class="control-label"
-                      ></label>
-                      <input asp-for="Customer.Website" class="form-control" />
-                      <span
-                        asp-validation-for="Customer.Website"
-                        class="text-danger"
-                      ></span>
+                      <label class="control-label">Website</label>
+                      <input
+                        name="{{ customer.website }}"
+                        [(ngModel)]="customer.website"
+                        class="form-control"
+                      />
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Photo"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label">Photo</label>
                       <input
                         type="file"
-                        asp-for="Customer.Photo"
+                        [(ngModel)]="customer.photo"
+                        (change)="onFileChange($event)"
                         class="form-control"
                       />
-                      <span
-                        asp-validation-for="Customer.Photo"
-                        class="text-danger"
-                      ></span>
                     </div>
                   </div>
                 </div>
                 <div class="row m-3">
                   <div class="col-12">
                     <div class="form-group">
-                      <label
-                        asp-for="Customer.Comments"
-                        class="control-label"
-                      ></label>
+                      <label class="control-label">Comments</label>
                       <textarea
-                        asp-for="Customer.Comments"
+                        name="{{ customer.comments }}"
+                        value="{{ customer.comments }}"
                         class="form-control"
                       ></textarea>
-                      <span
-                        asp-validation-for="Customer.Comments"
-                        class="text-danger"
-                      ></span>
                     </div>
                   </div>
                 </div>
@@ -395,7 +305,7 @@
                     style="width: 100px; margin-left: 5%"
                   />
                   <a
-                    asp-action="CustomerList"
+                    routerLink="/customer-list"
                     class="btn btn-danger"
                     style="width: 100px; margin-left: 2%"
                     >Cancel</a

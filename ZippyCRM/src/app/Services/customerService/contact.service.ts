@@ -6,14 +6,14 @@ import { Injectable } from '@angular/core';
 })
 export class ContactService {
   constructor(private http: HttpClient) {}
-  id = 0;
   getContects(customerId: number) {
-    debugger;
     // Create HttpParams to add query parameters
     const params = new HttpParams().set('customerId', customerId.toString());
 
+    // Pass the params in the options object correctly
     return this.http.get('https://localhost:7269/api/Customer/ContactList', {
-      params,
+      params: params,
     });
   }
+
 }
