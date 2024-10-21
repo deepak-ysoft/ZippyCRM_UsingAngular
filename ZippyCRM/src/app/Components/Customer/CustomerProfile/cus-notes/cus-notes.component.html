@@ -1,51 +1,168 @@
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.min.css"
-/>
-<section class="section">
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Notes List</h5>
-          <p>
-            <a id="createNewNotes" class="btn btn-primary">Create Notes</a>
-          </p>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>title</th>
-                <th>Created By</th>
-                <th>Create Date</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let notes of notesList; let i = index">
-                <td>{{ notes.title }}</td>
-                <td>{{ notes.username }}</td>
-                <td>{{ notes.createDate }}</td>
-                <td>
-                  <a
-                    data-id="@item.notesId"
-                    id="editNotes"
-                    class="fas fa-pencil-alt fa-md me-3"
-                  ></a>
-                  <a
-                    data-id="@item.notesId"
-                    id="notesDetails"
-                    class="fa-solid fa-circle-info fa-lg text-info me-3 pt-2"
-                  ></a>
-                  <a
-                    onclick="DeleteNotes(item.notesId)"
-                    class="fas fa-trash fa-md text-danger"
-                  ></a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+<p>
+  <a
+    data-bs-toggle="modal"
+    data-bs-target="#addNotesModal"
+    (click)="onAdd()"
+    class="btn btn-primary"
+    >Create Notes</a
+  >
+</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>title</th>
+      <th>Created By</th>
+      <th>Create Date</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let notes of notesList; let i = index">
+      <td>{{ notes.title }}</td>
+      <td>{{ notes.username }}</td>
+      <td>{{ notes.createDate }}</td>
+      <td>
+        <a
+          data-bs-toggle="modal"
+          data-bs-target="#addNotesModal"
+          (click)="onEdit(notes)"
+          class="fas fa-pencil-alt fa-md me-3"
+        ></a>
+        <a
+          data-bs-toggle="modal"
+          data-bs-target="#addNotesModal"
+          (click)="notesDetails(notes)"
+          class="fa-solid fa-circle-info fa-lg text-info me-3 pt-2"
+        ></a>
+        <a
+          onclick="DeleteNotes(item.notesId)"
+          class="fas fa-trash fa-md text-danger"
+        ></a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="addNotesModal"
+  tabindex="-1"
+  aria-labelledby="addNotesModalLabel"
+  aria-hidden="true"
+  #addNotesModal
+>
+  <div class="modal-dialog modal-landscape">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addNotesModalLabel">Notes</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          #closebutton
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form
+          #NotesForm="ngForm"
+          *ngIf="
+            modalPopupAndMsg == 'Add Contact' ||
+            modalPopupAndMsg == 'Edit Contact'
+          "
+          (ngSubmit)="onSubmit()"
+        >
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">{{ modalPopupAndMsg }}</h5>
+                  <div class="mb-3 row">
+                    <label for="activityType" class="form-label">Title</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="notes.title"
+                      name="title"
+                      required
+                    />
+                  </div>
+                  <div class="row">
+                    <div id="editor" #quillEditor></div>
+
+                    <!-- Hidden input field to store the Quill content -->
+                    <input
+                      type="hidden"
+                      id="descriptionInput"
+                      [ngModel]="notes.description"
+                      name="description"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="submit" class="btn btn-primary">Save Contact</button>
+          </div>
+        </form>
+        <section
+          class="section profile"
+          *ngIf="modalPopupAndMsg == 'Notes Details'"
+        >
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-body">
+                  <div class="tab-content">
+                    <h5 class="card-title">{{ modalPopupAndMsg }}</h5>
+                    <hr class="hr" />
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Title</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ notes.title }}
+                      </div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Created By</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ notes.username }}
+                      </div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Create Date</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ notes.createDate }}
+                      </div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Update Date</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ notes.updateDate }}
+                      </div>
+                    </div>
+
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Discription</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ notes.description }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
-</section>
+</div>

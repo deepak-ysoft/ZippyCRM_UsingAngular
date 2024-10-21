@@ -9,22 +9,14 @@ export class Addresses {
   customerId: number;
 
   constructor(
-    addressId: number,
-    addressName: string,
-    address: string,
-    email: string,
-    phone: string,
-    mobile: string,
-    internalNotes: string,
-    customerId: number
   ) {
-    this.addressId = addressId;
-    this.addressName = addressName;
-    this.address = address;
-    this.email = email;
-    this.phone = phone;
-    this.mobile = mobile;
-    this.internalNotes = internalNotes;
-    this.customerId = customerId;
+    this.addressId = 0;
+    this.addressName = '';
+    this.address = '';
+    this.email = '';
+    this.phone = '';
+    this.mobile = '';
+    this.internalNotes = '';
+    this.customerId = 0;
   }
 }

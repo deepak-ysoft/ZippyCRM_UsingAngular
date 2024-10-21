@@ -69,7 +69,7 @@
           <table id="customerDatatable" class="table" cellspacing="0">
             <thead class="container-fluid text-center">
               <tr class="row">
-                <th class="col">Picture</th>
+                <th class="col ColWidth">Picture</th>
                 <th class="col">First Name</th>
                 <th class="col">Middle Name</th>
                 <th class="col">Last Name</th>
@@ -85,18 +85,17 @@
               *ngIf="CustomerList && CustomerList.length > 0"
             >
               <tr class="row" *ngFor="let customer of CustomerList">
-                <td class="col">
+                <td class="col ColWidth">
                   <img
+                    class="rounded-circle cursor-pointer"
+                    (click)="getCustomerProfile(customer.cId)"
                     src="{{ customer.imagepath }}"
                     alt="Customer image"
-                    width="50"
-                    height="50"
+                    width="27"
+                    height="27"
                   />
                 </td>
-                <td
-                  class="col cursor-pointer"
-                  (click)="getCustomerProfile(customer.cId)"
-                >
+                <td class="col">
                   {{ customer.firstName }}
                 </td>
                 <td class="col">{{ customer.middleName }}</td>
@@ -126,7 +125,7 @@
             </tbody>
             <tbody *ngIf="!CustomerList || CustomerList.length === 0">
               <tr class="row">
-                <td class="col" colspan="9">No customers found</td>
+                <td class="col spinnerHeight" colspan="9"></td>
               </tr>
             </tbody>
           </table>

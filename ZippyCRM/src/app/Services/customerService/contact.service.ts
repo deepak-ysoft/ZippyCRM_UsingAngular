@@ -16,4 +16,15 @@ export class ContactService {
     });
   }
 
+  inserContact(contact: any) {
+    return this.http.post(
+      `https://localhost:7269/api/Customer/CreateEditContact`,
+      contact
+    );
+  }
+  successDelete(id: number) {
+    return this.http.delete(
+      `https://localhost:7269/api/Customer/ContactDelete/${id}`
+    );
+  }
 }

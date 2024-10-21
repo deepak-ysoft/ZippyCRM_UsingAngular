@@ -15,7 +15,6 @@ export class CustomerServiceService {
 
   getCustomerContacts(customerId: any) {
     const params = new HttpParams().set('customerId', customerId);
-    debugger;
     return this.http.get(`https://localhost:7269/api/Customer/ContactList?`, {
       params,
     });
@@ -26,7 +25,6 @@ export class CustomerServiceService {
     );
   }
   insertCustomer(customer: FormData): any {
-    debugger;
     return this.http.post(
       `https://localhost:7269/api/Customer/CreateEditCustomer`,
       customer
@@ -44,8 +42,8 @@ export class CustomerServiceService {
   }
 
   successDelete(id: any) {
-    return this.http
-      .delete(`https://localhost:7269/api/Customer/DeleteCustomer/${id}`)
-      .subscribe();
+    return this.http.delete(
+      `https://localhost:7269/api/Customer/DeleteCustomer/${id}`
+    );
   }
 }

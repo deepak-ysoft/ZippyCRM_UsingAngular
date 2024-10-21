@@ -13,3 +13,12 @@ button {
     justify-content: right !important;
     align-items: right !important;
 }
+.spinnerHeight {
+    height: 485px;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+.ColWidth {
+    max-width: 6%;
+}

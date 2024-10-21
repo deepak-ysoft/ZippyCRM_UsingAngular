@@ -13,7 +13,7 @@
           <div class="row">
             <div class="col-auto">
               <img
-                src="assets/img/{{ customer?.imagepath }}"
+                src="{{ customer?.imagepath }}"
                 style="height: 45px; width: 45px"
                 class="rounded-circle"
               />
@@ -24,11 +24,11 @@
               </div>
               <div class="row">
                 <div class="col-auto">
-                  <i class="fa-solid fa-mobile-retro"></i>
+                  <i class="fa-solid fa-mobile-retro"></i>&nbsp;
                   <span>{{ customer?.phone }}</span>
                 </div>
                 <div class="col-auto">
-                  <i class="fa-solid fa-envelope-open-text"></i>
+                  <i class="fa-solid fa-envelope-open-text"></i>&nbsp;
                   <span>{{ customer?.email }}</span>
                 </div>
               </div>

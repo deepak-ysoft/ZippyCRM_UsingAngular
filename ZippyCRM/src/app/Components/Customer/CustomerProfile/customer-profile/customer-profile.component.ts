@@ -86,6 +86,7 @@ export class CustomerProfileComponent implements OnInit {
   }
 
   getContactList(id: any) {
+    debugger;
     this.service.getContects(id).subscribe((res: any) => {
       this.ContectList = res;
     });

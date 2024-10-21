@@ -41,7 +41,6 @@ export class CustomerListComponent implements OnInit {
     if (page < 1) {
       return; // Prevent out of range pages
     }
-
     this.currentPage = page;
 
     const params = {
@@ -102,11 +101,11 @@ export class CustomerListComponent implements OnInit {
     }
   }
   deleteCustomer(cId: number): void {
-    debugger;
     this.cusService.confirmDelete().then((result) => {
       if (result.isConfirmed) {
-        this.cusService.successDelete(cId);
-        this.loadPage(this.currentPage);
+        this.cusService.successDelete(cId).subscribe(() => {
+          this.loadPage(this.currentPage);
+        });
       }
     });
   }
@@ -119,7 +118,6 @@ export class CustomerListComponent implements OnInit {
     this.customer = new Customer(); // Initialize with a new instance of Customer
   }
   getCustomerProfile(customerId: any) {
-    debugger;
     this.cusService.getCustomerProfile(customerId).subscribe((res: any) => {
       this.customer = res;
       if (res != null) {

@@ -9,4 +9,8 @@ export class NotesService {
   getNotes(CId: any) {
     return this.http.get(`https://localhost:7269/api/Customer/GetNotes/${CId}`);
   }
+
+  inserNotes(notes:any){
+    return this.http.post(`https://localhost:7269/api/Customer/CreateEditNotes`,notes);
+  }
 }

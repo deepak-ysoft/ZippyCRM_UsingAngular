@@ -1,11 +1,13 @@
 <!-- Trigger Button -->
 <a
-  class="fas fa-user-plus fa-xl text-primary float-end pe-1 mt-3 text-success"
-  onclick="AddNewContact()"
+  class="fas fa-user-plus fa-xl text-primary float-end pe-1 mt-2 mb-3 text-success"
+  data-bs-toggle="modal"
+  data-bs-target="#addContactModal"
+  (click)="onAdd()"
 >
 </a>
-
-<table class="table">
+<p *ngIf="!isContacts">No Cantacts here!</p>
+<table *ngIf="isContacts" class="table">
   <thead class="text-center">
     <tr>
       <th>Contact Name</th>
@@ -16,7 +18,7 @@
       <th>Mobile</th>
       <th>Internal Notes</th>
 
-      <th></th>
+      <th>Action</th>
     </tr>
   </thead>
   <tbody class="text-center">
@@ -30,18 +32,221 @@
       <td>{{ contact.internalNotes }}</td>
       <td>
         <a
-          class=" fas fa-pencil-alt fa-lg me-3"
-          onclick="EditContact(item.ContactId);"
+          class="fas fa-pencil-alt fa-lg me-3"
+          data-bs-toggle="modal"
+          data-bs-target="#addContactModal"
+          (click)="EditContact(contact)"
         ></a>
         <a
           class="fa-solid fa-circle-info fa-xl text-info"
-          onclick="DetailsContact(item.ContactId);"
+          data-bs-toggle="modal"
+          data-bs-target="#addContactModal"
+          (click)="ContactDetails(contact)"
         ></a>
         <a
           class="fas fa-trash fa-lg text-danger ms-3"
-          onclick="DeleteContact(item.ContactId);"
+          (click)="DeleteContact(contact.contactId)"
         ></a>
       </td>
     </tr>
   </tbody>
 </table>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="addContactModal"
+  tabindex="-1"
+  aria-labelledby="addContactModalLabel"
+  aria-hidden="true"
+  #addContactModal
+>
+  <div class="modal-dialog modal-landscape">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addContactModalLabel">Contact</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          #closebutton
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form
+          #contactForm="ngForm"
+          *ngIf="
+            modalPopupAndMsg == 'Edit Contact' ||
+            modalPopupAndMsg == 'Create Contact'
+          "
+          (ngSubmit)="onSubmit()"
+        >
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">{{ modalPopupAndMsg }}</h5>
+                  <div class="mb-3 row">
+                    <div class="col-6">
+                      <label for="contactName" class="form-label"
+                        >Contact Name</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="contact.contactName"
+                        name="contactName"
+                        id="contactName"
+                        required
+                      />
+                    </div>
+                    <div class="col-6">
+                      <label for="email" class="form-label">Email</label>
+                      <input
+                        type="hidden"
+                        [(ngModel)]="contact.contactId"
+                        name="contactId"
+                      />
+                      <input
+                        type="email"
+                        class="form-control"
+                        [(ngModel)]="contact.email"
+                        name="email"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="mb-3 row">
+                    <div class="col-6">
+                      <label for="title" class="form-label">Title</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="contact.title"
+                        name="title"
+                      />
+                    </div>
+                    <div class="col-6">
+                      <label for="phone" class="form-label">Phone</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="contact.phone"
+                        name="phone"
+                      />
+                    </div>
+                  </div>
+                  <div class="mb-3 row">
+                    <div class="col-6">
+                      <label for="jobPosition" class="form-label"
+                        >Job Position</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="contact.jobPosition"
+                        name="jobPosition"
+                      />
+                    </div>
+                    <div class="col-6">
+                      <label for="mobile" class="form-label">Mobile</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="contact.mobile"
+                        name="mobile"
+                      />
+                    </div>
+                  </div>
+                  <div class="mb-3 row">
+                    <label for="internalNotes" class="form-label"
+                      >Internal Notes</label
+                    >
+                    <textarea
+                      class="form-control"
+                      [(ngModel)]="contact.internalNotes"
+                      name="internalNotes"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="submit" class="btn btn-primary">Save Contact</button>
+          </div>
+        </form>
+        <section
+          class="section profile"
+          *ngIf="modalPopupAndMsg == 'Contact Details'"
+        >
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-body">
+                  <div class="tab-content">
+                    <h5 class="card-title">{{ modalPopupAndMsg }}</h5>
+                    <hr class="hr" />
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Contact Name</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ contact.contactName }}
+                      </div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Email</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ contact.email }}
+                      </div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Title</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ contact.title }}
+                      </div>
+                    </div>
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Job Position</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ contact.jobPosition }}
+                      </div>
+                    </div>
+
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Phone</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ contact.phone }}
+                      </div>
+                    </div>
+
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Mobile</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ contact.mobile }}
+                      </div>
+                    </div>
+
+                    <div class="row mb-2">
+                      <div class="col-lg-3 col-md-4 label">Internal Notes</div>
+                      <div class="col-lg-9 col-md-8">
+                        {{ contact.internalNotes }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
