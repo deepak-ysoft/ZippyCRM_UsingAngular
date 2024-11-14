@@ -29,18 +29,15 @@
                   </p>
                 </div>
 
-                <form class="row g-3 needs-validation" novalidate>
+                <form class="row g-3 needs-validation">
                   <div class="col-12 mb-3">
-                    <label for="yourUsername" class="form-label"
-                      >Email</label
-                    >
+                    <label for="yourUsername" class="form-label">Email</label>
                     <div class="input-group has-validation">
                       <input
                         type="text"
-                        name="username"
+                        [(ngModel)]="login.email"
+                        name="email"
                         class="form-control"
-                        id="yourUsername"
-                        value="deepaksysoft@gmail.com"
                         required
                       />
                       <div class="invalid-feedback">
@@ -56,10 +53,9 @@
                     <div class="input-group has-validation">
                       <input
                         type="password"
+                        [(ngModel)]="login.password"
                         name="password"
                         class="form-control"
-                        value="Deepak@123"
-                        id="yourPassword"
                         required
                       />
 
@@ -93,7 +89,7 @@
                     <button
                       class="btn btn-primary w-100"
                       type="submit"
-                      (click)="onLogin()"
+                      (click)="onLogin(login)"
                     >
                       Login
                     </button>

@@ -31,7 +31,6 @@ $(document).on('click', '#createNewTask', function () {
 
 // Show edit Task form in modal
 $(document).on('click', '#editTask', function () {
-    debugger;
     var id = $(this).data('id');
 
     $.get('/Customer/CreateEditTask/' + id, function (data) {

@@ -50,7 +50,9 @@ export class Customer {
   }
 
   private generateFullName(): string {
-    return `${this.title ? title[this.title] : ''} ${this.firstName || ''} ${this.middleName || ''} ${this.lastName || ''}`.trim();
+    return `${this.title ? title[this.title] : ''} ${this.firstName || ''} ${
+      this.middleName || ''
+    } ${this.lastName || ''}`.trim();
   }
 }
 

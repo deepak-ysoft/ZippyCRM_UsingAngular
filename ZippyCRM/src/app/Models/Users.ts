@@ -17,14 +17,14 @@ export class Users {
   country: string;
   address: string;
   phone: string;
-  description: string; // Typo in your C# model, corrected to description
+  discription: string; // Typo in your C# model, corrected to Discription
   jobId: number;
   job?: Job; // Optional Job object
-  imagePath: string;
+  imagePath?: string;
   photo?: File; // Using File for handling file uploads
   email: string;
   password: string;
-  cPassword: string; // Confirm password field
+  cPassword?: string; // Confirm password field
   accountSetup: boolean; // Default to false
   isActive: boolean; // Default to false
   accountStatus: AccountStatus; // Default to Inactive
@@ -36,12 +36,10 @@ export class Users {
     this.country = '';
     this.address = '';
     this.phone = '';
-    this.description = ''; // Typo in your C# model, corrected to description
+    this.discription = ''; // Typo in your C# model, corrected to Discription
     this.jobId = 0;
-    this.imagePath = '';
     this.email = '';
     this.password = '';
-    this.cPassword = ''; // Confirm password field
     this.accountSetup = false; // Default to false
     this.isActive = false; // Default to false
     this.accountStatus = AccountStatus.Inactive; // Default to Inactive

@@ -17,7 +17,7 @@
           <h5 class="card-title">{{ message }}</h5>
           <div class="row">
             <div>
-              <form (ngSubmit)="onSubmit()">
+              <form [formGroup]="onSubmitForm" (ngSubmit)="onSubmit()">
                 <div class="row m-3">
                   <div>
                     <label class="m-2 ms-lg-0">Type</label>
@@ -42,21 +42,26 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="row m-3">
                   <div class="col-12" *ngIf="Individual">
                     <div class="form-group">
                       <label class="control-label">PAN</label>
                       <input
-                        [(ngModel)]="customer!.pan"
+                        placeholder="Enter PAN..."
+                        formControlName="pan"
                         name="pan"
                         class="form-control"
                       />
-                      <input
-                        [(ngModel)]="customer!.cId"
-                        name="cId"
-                        type="hidden"
-                      />
+                      <small
+                        *ngIf="
+                          (onSubmitForm.hasError('panOrGstRequired') &&
+                            submitted) ||
+                          shouldShowError('pan')
+                        "
+                        class="text-danger"
+                      >
+                        Please enter PAN or GST number.
+                      </small>
                     </div>
                   </div>
 
@@ -64,10 +69,21 @@
                     <div class="form-group">
                       <label class="control-label">GST</label>
                       <input
-                        [(ngModel)]="customer!.gst"
+                        placeholder="Enter GST..."
+                        formControlName="gst"
                         name="gst"
                         class="form-control"
                       />
+                      <small
+                        *ngIf="
+                          (onSubmitForm.hasError('panOrGstRequired') &&
+                            submitted) ||
+                          shouldShowError('gst')
+                        "
+                        class="text-danger"
+                      >
+                        Please enter PAN or GST number.
+                      </small>
                     </div>
                   </div>
                 </div>
@@ -78,10 +94,11 @@
                       <label class="control-label" for="title">Title</label>
                       <select
                         id="title"
-                        [(ngModel)]="customer!.title"
+                        formControlName="title"
                         name="title"
                         class="form-control"
                       >
+                        <option value="" disabled>- Select Title -</option>
                         <option
                           *ngFor="let option of titleOptions"
                           [value]="option.value"
@@ -89,6 +106,14 @@
                           {{ option.text }}
                         </option>
                       </select>
+                      <div *ngIf="shouldShowError('title')" class="text-danger">
+                        <small
+                          *ngIf="
+                            onSubmitForm.get('title')?.hasError('required')
+                          "
+                          >Please select title.</small
+                        >
+                      </div>
                     </div>
                   </div>
 
@@ -96,10 +121,29 @@
                     <div class="form-group">
                       <label class="control-label">First Name</label>
                       <input
+                        placeholder="Enter First Name..."
                         name="firstName "
-                        [(ngModel)]="customer.firstName"
+                        formControlName="firstName"
                         class="form-control"
-                      />
+                      /><small
+                        *ngIf="
+                          shouldShowError('firstName') &&
+                          !onSubmitForm.controls['firstName'].hasError(
+                            'pattern'
+                          )
+                        "
+                        class="text-danger"
+                      >
+                        Please enter First Name.
+                      </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.controls['firstName'].hasError('pattern')
+                        "
+                      >
+                        First name not allow numbers and white space.
+                      </small>
                     </div>
                   </div>
                 </div>
@@ -108,11 +152,20 @@
                     <div class="form-group">
                       <label class="control-label">Middle Name</label>
                       <input
-                        name="middleName "
-                        [(ngModel)]="customer.middleName"
+                        formControlName="middleName"
                         placeholder="optional"
                         class="form-control"
                       />
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.controls['middleName'].hasError(
+                            'pattern'
+                          )
+                        "
+                      >
+                        Middle name not allow numbers.
+                      </small>
                     </div>
                   </div>
 
@@ -120,33 +173,30 @@
                     <div class="form-group">
                       <label class="control-label">Last Name</label>
                       <input
+                        placeholder="Enter Last Name..."
                         name="lastName "
-                        [(ngModel)]="customer.lastName"
+                        formControlName="lastName"
                         class="form-control"
-                      />
+                      /><small
+                        *ngIf="shouldShowError('lastName')"
+                        class="text-danger"
+                      >
+                        Please enter Last Name.
+                      </small>
                     </div>
                   </div>
                 </div>
                 <div class="row m-3">
                   <div class="col-6">
                     <div class="form-group">
-                      <label class="control-label">Position</label>
-                      <input
-                        name="position "
-                        [(ngModel)]="customer.position"
-                        class="form-control"
-                      />
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="form-group">
                       <label class="control-label" for="gender">Gender</label>
                       <select
                         id="gender"
-                        [(ngModel)]="customer!.gender"
+                        formControlName="gender"
                         name="gender"
                         class="form-control"
                       >
+                        <option value="" disabled>- Select Gender -</option>
                         <option
                           *ngFor="let option of genderOptions"
                           [value]="option.value"
@@ -154,19 +204,49 @@
                           {{ option.text }}
                         </option>
                       </select>
+                      <div
+                        *ngIf="shouldShowError('gender')"
+                        class="text-danger"
+                      >
+                        <small
+                          *ngIf="
+                            onSubmitForm.get('gender')?.hasError('required')
+                          "
+                          >Please select your gender.</small
+                        >
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label class="control-label">Position</label>
+                      <input
+                        placeholder="Enter Position..."
+                        name="position "
+                        formControlName="position"
+                        class="form-control"
+                      /><small
+                        *ngIf="shouldShowError('position')"
+                        class="text-danger"
+                      >
+                        Please enter Position.
+                      </small>
                     </div>
                   </div>
                 </div>
                 <div class="row m-3">
                   <div class="col-6">
                     <div class="form-group">
-                      <label class="control-label" for="language">Gender</label>
+                      <label class="control-label" for="language"
+                        >Language</label
+                      >
                       <select
                         id="language"
-                        [(ngModel)]="customer!.language"
+                        formControlName="language"
                         name="language"
                         class="form-control"
                       >
+                        <option value="" disabled>- Select Language -</option>
                         <option
                           *ngFor="let option of languageOptions"
                           [value]="option.value"
@@ -174,6 +254,17 @@
                           {{ option.text }}
                         </option>
                       </select>
+                      <div
+                        *ngIf="shouldShowError('language')"
+                        class="text-danger"
+                      >
+                        <small
+                          *ngIf="
+                            onSubmitForm.get('language')?.hasError('required')
+                          "
+                          >Please select your language.</small
+                        >
+                      </div>
                     </div>
                   </div>
                   <div class="col-6">
@@ -182,9 +273,14 @@
                       <input
                         type="date"
                         name="dayOfBirth"
-                        [(ngModel)]="customer.dayOfBirth"
+                        formControlName="dayOfBirth"
                         class="form-control"
-                      />
+                      /><small
+                        *ngIf="shouldShowError('dayOfBirth')"
+                        class="text-danger"
+                      >
+                        Please enter your Day Of Birth.
+                      </small>
                     </div>
                   </div>
                 </div>
@@ -193,22 +289,86 @@
                     <div class="form-group">
                       <label class="control-label">Phone</label>
                       <input
+                        placeholder="Enter Phone Number..."
                         name="phone "
-                        [(ngModel)]="customer.phone"
+                        formControlName="phone"
                         type="number"
                         class="form-control"
                       />
+                      <small
+                        *ngIf="
+                          shouldShowError('phone') &&
+                          !onSubmitForm
+                            .get('phone')
+                            ?.hasError('minPhoneValue') &&
+                          !onSubmitForm.get('phone')?.hasError('maxPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Please enter phone number!</small
+                      >
+                      <small
+                        *ngIf="
+                          onSubmitForm.get('phone')?.hasError('minPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Phone number must have at least 10 digits.
+                      </small>
+                      <small
+                        *ngIf="
+                          onSubmitForm.get('phone')?.hasError('maxPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Phone number cannot exceed 12.
+                      </small>
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group">
                       <label class="control-label"> Other Phone No.</label>
                       <input
+                        placeholder="Enter Other Phone Number..."
                         name="phoneOther "
-                        [(ngModel)]="customer.phoneOther"
+                        formControlName="phoneOther"
                         type="number"
                         class="form-control"
                       />
+                      <small
+                        *ngIf="
+                          shouldShowError('phoneOther') &&
+                          !onSubmitForm
+                            .get('phoneOther')
+                            ?.hasError('minPhoneValue') &&
+                          !onSubmitForm
+                            .get('phoneOther')
+                            ?.hasError('maxPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Please enter second phone number!</small
+                      >
+                      <small
+                        *ngIf="
+                          onSubmitForm
+                            .get('phoneOther')
+                            ?.hasError('minPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Phone number must have at least 10 digits.
+                      </small>
+                      <small
+                        *ngIf="
+                          onSubmitForm
+                            .get('phoneOther')
+                            ?.hasError('maxPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Phone number cannot exceed 12.
+                      </small>
                     </div>
                   </div>
                 </div>
@@ -217,22 +377,34 @@
                     <div class="form-group">
                       <label class="control-label">Cell</label>
                       <input
+                        placeholder="Enter Cell Number..."
                         name="cell "
-                        [(ngModel)]="customer.cell"
+                        formControlName="cell"
                         type="number"
                         class="form-control"
-                      />
+                      /><small
+                        *ngIf="shouldShowError('cell')"
+                        class="text-danger"
+                      >
+                        Please enter Cell Number.
+                      </small>
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group">
                       <label class="control-label">Fax</label>
                       <input
+                        placeholder="Enter Fax Number..."
                         name="fax "
-                        [(ngModel)]="customer.fax"
+                        formControlName="fax"
                         type="number"
                         class="form-control"
-                      />
+                      /><small
+                        *ngIf="shouldShowError('fax')"
+                        class="text-danger"
+                      >
+                        Please enter Fax Number.
+                      </small>
                     </div>
                   </div>
                 </div>
@@ -241,20 +413,55 @@
                     <div class="form-group">
                       <label class="control-label">Email</label>
                       <input
+                        placeholder="Enter Email..."
                         name="email "
-                        [(ngModel)]="customer.email"
+                        formControlName="email"
                         class="form-control"
-                      />
+                      /><small
+                        *ngIf="
+                          shouldShowError('email') &&
+                          !onSubmitForm.controls['email'].hasError('pattern')
+                        "
+                        class="text-danger"
+                      >
+                        Please enter Email.
+                      </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.controls['email'].hasError('pattern')
+                        "
+                      >
+                        First enter 5 charactors then you can use numbers after
+                        that '&#64;', domain name then '.' and last two char.
+                      </small>
                     </div>
                   </div>
                   <div class="col-6">
                     <div class="form-group">
                       <label class="control-label">Second Email</label>
                       <input
+                        placeholder="Enter Second Email..."
                         name="email2 "
-                        [(ngModel)]="customer.email2"
+                        formControlName="email2"
                         class="form-control"
-                      />
+                      /><small
+                        *ngIf="
+                          shouldShowError('email2') &&
+                          !onSubmitForm.controls['email2'].hasError('pattern')
+                        "
+                        class="text-danger"
+                      >
+                        Please enter Second Email. </small
+                      ><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.controls['email2'].hasError('pattern')
+                        "
+                      >
+                        First enter 5 charactors then you can use numbers after
+                        that '&#64;', domain name then '.' and last two char.
+                      </small>
                     </div>
                   </div>
                   <div
@@ -267,10 +474,16 @@
                     <div class="form-group">
                       <label class="control-label">Website</label>
                       <input
+                        placeholder="Enter Website..."
                         name="website "
-                        [(ngModel)]="customer.website"
+                        formControlName="website"
                         class="form-control"
-                      />
+                      /><small
+                        *ngIf="shouldShowError('website')"
+                        class="text-danger"
+                      >
+                        Please enter Website Name.
+                      </small>
                     </div>
                   </div>
                   <div class="col-6">
@@ -278,7 +491,7 @@
                       <label class="control-label">Photo</label>
                       <input
                         type="file"
-                        [(ngModel)]="customer.photo"
+                        name="photo "
                         (change)="onFileChange($event)"
                         class="form-control"
                       />
@@ -291,19 +504,27 @@
                       <label class="control-label">Comments</label>
                       <textarea
                         name="comments "
-                        value="{{ customer.comments }}"
+                        placeholder="Enter Comments..."
+                        formControlName="comments"
                         class="form-control"
-                      ></textarea>
+                      ></textarea
+                      ><small
+                        *ngIf="shouldShowError('comments')"
+                        class="text-danger"
+                      >
+                        Please enter Comments.
+                      </small>
                     </div>
                   </div>
                 </div>
                 <div class="row">
-                  <input
+                  <button
                     type="submit"
-                    value="Save"
                     class="btn btn-primary"
                     style="width: 100px; margin-left: 5%"
-                  />
+                  >
+                    Save
+                  </button>
                   <a
                     routerLink="/customer-list"
                     class="btn btn-danger"

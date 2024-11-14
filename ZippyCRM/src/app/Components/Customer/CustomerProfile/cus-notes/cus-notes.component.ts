@@ -11,15 +11,26 @@ import {
 import { CustomerNotes } from '../../../../Models/cusNotes.model';
 import { NotesService } from '../../../../Services/customerService/notes.service';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import Quill from 'quill';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { CustomerServiceService } from '../../../../Services/customerService/customer-service.service';
 declare var bootstrap: any;
 
 @Component({
   selector: 'app-cus-notes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './cus-notes.component.html',
   styleUrl: './cus-notes.component.css',
 })
@@ -27,24 +38,34 @@ export class CusNotesComponent implements OnInit {
   @Input() customerId: any;
   notesList: CustomerNotes[] = [];
   notes: CustomerNotes;
-  modalPopupAndMsg = 'Add Contact';
+  modalPopupAndMsg = 'Add Notes';
   service = inject(NotesService);
+  cusService = inject(CustomerServiceService);
   @ViewChild('addNotesModal', { static: false }) addNotesModal!: ElementRef;
   @ViewChild('quillEditor', { static: false }) quillEditor!: ElementRef;
-  quill!: Quill;
-  notesForm: FormGroup;
+  quill: Quill | null = null;
+  loggedUser: any;
+  onSubmitForm: FormGroup;
+  submitted = false;
+
   constructor(
+    private sanitizer: DomSanitizer,
     @Inject(PLATFORM_ID) private platformId: Object,
     private fb: FormBuilder
   ) {
     this.notes = new CustomerNotes();
-    this.notesForm = this.fb.group({
-      description: [''],
+    this.onSubmitForm = new FormGroup({
+      notesId: new FormControl(),
+      title: new FormControl('', [Validators.required]),
+      description: new FormControl('', [Validators.required]),
+      customerId: new FormControl(),
+      userId: new FormControl(),
     });
   }
 
   ngOnInit(): void {
     this.getNotesList(this.customerId);
+    this.onSubmitForm.get('customerId')?.setValue(this.customerId);
   }
   getNotesList(id: any) {
     this.service.getNotes(id).subscribe((res: any) => {
@@ -53,35 +74,47 @@ export class CusNotesComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    debugger;
-    if (isPlatformBrowser(this.platformId) && this.quillEditor) {
-      import('quill')
-        .then((module) => {
-          const Quill = module.default as any; // Type assertion
-          this.quill = new Quill(this.quillEditor.nativeElement, {
-            theme: 'snow',
-          });
-          this.populateQuillEditor();
-        })
-        .catch((error) => console.error('Error loading Quill:', error));
+    // Ensure quillEditor is defined and available before using it
+    if (this.quillEditor) {
+      this.initializeQuillEditor();
     }
   }
-  // If you want to populate Quill with initial content (from the form control)
+
+  initializeQuillEditor() {
+    if (this.quill) return; // Prevent duplicate instances
+    import('quill')
+      .then((module) => {
+        const Quill = module.default;
+        this.quill = new Quill(this.quillEditor.nativeElement, {
+          theme: 'snow',
+        });
+        this.populateQuillEditor();
+
+        this.quill.on('text-change', () => {
+          this.updateHiddenInput();
+        });
+      })
+      .catch((error) => console.error('Error initializing Quill:', error));
+  }
 
   // Function to populate Quill editor with form field content
   populateQuillEditor() {
-    const description = this.notesForm.get('description')?.value;
+    const description = this.onSubmitForm.get('description')?.value;
     if (description) {
-      this.quill.root.innerHTML = description;
+      this.quill!.root.innerHTML = description;
     }
   }
 
-  // Function to update the hidden input field (Angular form control) with Quill content
+  // Method to update Angular form with editor content
   updateHiddenInput() {
-    const quillContent = this.quill.root.innerHTML;
-    this.notesForm.patchValue({
-      description: quillContent,
+    const quillContent = this.quill!.root.innerHTML;
+    this.onSubmitForm.patchValue({
+      description: quillContent === '<p><br></p>' ? '' : quillContent,
     });
+  }
+
+  onEditorTouched() {
+    this.onSubmitForm.get('description')?.markAsTouched();
   }
 
   onAdd() {
@@ -90,53 +123,75 @@ export class CusNotesComponent implements OnInit {
   }
 
   onEdit(notes: CustomerNotes) {
-    // Populate the Angular form with the note data
-    this.notesForm.patchValue({
+    this.notes = notes;
+    this.onSubmitForm.patchValue({
+      notesId: notes.notesId,
+      title: notes.title,
       description: notes.description,
     });
-    this.notes = notes;
-    this.modalPopupAndMsg = 'Edit Contact';
-    // Once the form is patched, populate the Quill editor with the description
+    this.modalPopupAndMsg = 'Edit Notes';
     this.populateQuillEditor();
   }
-
   // Handle form submission
   onSubmit() {
-    this.updateHiddenInput(); // Ensure the Quill content is updated in the form before submitting
-
-    // Transfer the form control values into the CustomerNotes object
-    const formValues = this.notesForm.value;
-
-    // Copy the description from the form into the notes object
-    this.notes.description = formValues.description;
-
-    this.notes.userId = 5;
-    this.notes.customerId = this.customerId;
-    // Proceed with the API call
-    this.service.inserNotes(this.notes).subscribe((res: any) => {
-      if (res) {
-        this.notes = new CustomerNotes();
-        this.clearForm();
-        const modal = bootstrap.Modal.getInstance(
-          this.addNotesModal.nativeElement
-        );
-        modal.hide();
-        this.getNotesList(this.customerId);
+    this.submitted = true;
+    if (this.onSubmitForm.valid) {
+      this.updateHiddenInput(); // Ensure the Quill content is updated in the form before submitting
+      const userData = localStorage.getItem('loginUser');
+      if (userData) {
+        this.loggedUser = JSON.parse(userData); // Parse the string into an object
       }
-    });
+      this.onSubmitForm.get('userId')?.setValue(this.loggedUser.user.userId);
+
+      if (this.onSubmitForm.get('notesId')?.value == null) {
+        this.onSubmitForm.get('notesId')?.setValue(0);
+      }
+      this.onSubmitForm.get('customerId')?.setValue(this.customerId);
+      // Proceed with the API call
+      this.service.inserNotes(this.onSubmitForm.value).subscribe((res: any) => {
+        if (res) {
+          this.notes = new CustomerNotes();
+          this.clearForm();
+          const modal = bootstrap.Modal.getInstance(
+            this.addNotesModal.nativeElement
+          );
+          modal.hide();
+          this.getNotesList(this.customerId);
+        }
+      });
+    }
   }
 
-  clearForm() {
-    // Clear the Quill editor content
-    this.quill.root.innerHTML = '';
-
-    // Clear the form controls, particularly the description
-    this.notesForm.reset(); // Optionally reset the entire form
+  shouldShowError(controlName: string): boolean {
+    const control = this.onSubmitForm.get(controlName);
+    return (
+      (control?.invalid &&
+        (control.touched || control.dirty || this.submitted)) ??
+      false
+    );
   }
-
+  
+  notesDescription!: SafeHtml;
   notesDetails(notes: CustomerNotes) {
     this.notes = notes;
-    this.modalPopupAndMsg = 'Notes Details';
+    this.notesDescription = this.sanitizer.bypassSecurityTrustHtml(
+      this.notes.description
+    );
+  }
+  clearForm() {
+    this.onSubmitForm.reset();
+    if (this.quill) {
+      this.quill.root.innerHTML = ''; // Clear editor content
+    }
+  }
+  DeleteNotes(id: number) {
+    this.cusService.confirmDelete().then((result) => {
+      if (result.isConfirmed) {
+        this.service.succesDelete(id).subscribe((res: any) => {
+          this.getNotesList(this.customerId);
+        });
+      }
+    });
   }
 }
 export default {

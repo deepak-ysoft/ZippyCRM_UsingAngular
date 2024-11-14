@@ -30,7 +30,6 @@ export class CustomerListComponent implements OnInit {
   totalCustomers = 0; // Total number of customers from the API
   totalPages = 0;
   searchTerm = ''; // For search input
-
   http = inject(HttpClient);
 
   ngOnInit(): void {

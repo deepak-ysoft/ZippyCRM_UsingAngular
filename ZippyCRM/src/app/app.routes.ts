@@ -12,6 +12,7 @@ import { CustomerListComponent } from './Components/Customer/customer-list/custo
 import { CustomerProfileComponent } from './Components/Customer/CustomerProfile/customer-profile/customer-profile.component';
 import { CusContactComponent } from './Components/Customer/CustomerProfile/cus-contact/cus-contact.component';
 import { CustomerDetailsComponent } from './Components/Customer/customer-details/customer-details.component';
+import { authGuard } from './Services/auth.guard';
 
 export const routes: Routes = [
   //defualt route
@@ -43,34 +44,42 @@ export const routes: Routes = [
       {
         path: 'index',
         component: IndexComponent,
+        canActivate: [authGuard],
       },
       {
         path: 'user-profile',
         component: UserProfileComponent,
+        canActivate: [authGuard],
       },
       {
         path: 'user-profile-need-help',
         component: UserProfileNeedHelpComponent,
+        canActivate: [authGuard],
       },
       {
         path: 'customer-register',
         component: CustomerRegisterComponent,
+        canActivate: [authGuard],
       },
       {
         path: 'customer-list',
         component: CustomerListComponent,
+        canActivate: [authGuard],
       },
       {
         path: 'customer-details',
         component: CustomerDetailsComponent,
+        canActivate: [authGuard],
       },
       {
         path: 'customer-profile',
         component: CustomerProfileComponent,
+        canActivate: [authGuard],
       },
       {
         path: 'customer-contact',
         component: CusContactComponent,
+        canActivate: [authGuard],
       },
     ],
   },

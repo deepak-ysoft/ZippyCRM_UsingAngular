@@ -18,12 +18,12 @@
           class="card-body profile-card pt-4 d-flex flex-column align-items-center"
         >
           <img
-            src="~/img/Model.ImagePath"
+            [src]="loggedUser.user.imagePath"
             style="height: 45px; width: 45px"
             class="rounded-circle"
           />
-          <h3>Html.DisplayFor(modelItem => Model.Username)</h3>
-          <h3>Html.DisplayFor(modelItem => Model.Job.JobName)</h3>
+          <h3>{{ loggedUser.user.username }}</h3>
+          <h3>{{ loggedUser.userJob }}</h3>
           <div class="social-links mt-2">
             <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
             <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
@@ -89,93 +89,88 @@
             >
               <h5 class="card-title">Discription</h5>
               <p class="small fst-italic">
-                Html.DisplayFor(modelItem => Model.Discription)
+                {{ loggedUser.user.discription }}
               </p>
 
               <h5 class="card-title">Profile Details</h5>
 
               <div class="row">
-                <div class="col-lg-3 col-md-4 label">UserName</div>
+                <div class="col-lg-3 col-md-4 label">User Name</div>
                 <div class="col-lg-9 col-md-8">
-                  Html.DisplayFor(modelItem => modelItem.Username)
+                  {{ loggedUser.user.username }}
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Company</div>
                 <div class="col-lg-9 col-md-8">
-                  Html.DisplayFor(modelItem => modelItem.Company)
+                  {{ loggedUser.user.company }}
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Job</div>
                 <div class="col-lg-9 col-md-8">
-                  Html.DisplayFor(modelItem => modelItem.Job.JobName)
+                  {{ loggedUser.userJob }}
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Country</div>
                 <div class="col-lg-9 col-md-8">
-                  Html.DisplayFor(modelItem => modelItem.Country)
+                  {{ loggedUser.user.country }}
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Address</div>
                 <div class="col-lg-9 col-md-8">
-                  Html.DisplayFor(modelItem => modelItem.Address)
+                  {{ loggedUser.user.address }}
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Phone</div>
                 <div class="col-lg-9 col-md-8">
-                  Html.DisplayFor(modelItem => modelItem.Phone)
+                  {{ loggedUser.user.phone }}
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Email</div>
                 <div class="col-lg-9 col-md-8">
-                  Html.DisplayFor(modelItem => modelItem.Email)
+                  {{ loggedUser.user.email }}
                 </div>
               </div>
             </div>
 
             <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
               <!-- Profile Edit Form -->
-              <form
-                method="post"
-                id="editProfileForm"
-                enctype="multipart/form-data"
-                asp-action="Edit"
-              >
+              <form [formGroup]="onSubmitForm" (ngSubmit)="onSubmit()">
                 <div class="row mb-3">
                   <label
                     for="profileImage"
                     class="col-md-4 col-lg-3 col-form-label"
-                    >Profile Image</label
+                    >Profile</label
                   >
                   <div class="col-md-8 col-lg-9">
                     <img
-                      src="~/img/Model.ImagePath"
+                      [src]="loggedUser.user.imagePath"
                       style="height: 45px; width: 45px"
                       class="rounded-circle"
                     />
                     <div class="pt-2">
                       <input
-                        name="Photo"
-                        class="uploadimage bi bi-upload btn btn-primary"
                         type="file"
+                        (change)="onFileChange($event)"
+                        formControlName="photo"
+                        name="photo"
+                        class="uploadimage bi bi-upload btn btn-primary"
                       />
                       <a
-                        asp-action="DeleteImage"
                         style="height: 27px; width: 25px"
-                        asp-controller="Home"
                         class="btn btn-danger btn-sm"
-                        title="Remove my profile image"
+                        (click)="deleteUserImage(loggedUser.user.userId)"
                         ><i class="bi bi-trash"></i
                       ></a>
                     </div>
@@ -183,92 +178,221 @@
                 </div>
 
                 <div class="row mb-3">
-                  <label for="fullName" class="col-md-4 col-lg-3 col-form-label"
+                  <label class="col-md-4 col-lg-3 col-form-label"
                     >Full Name</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input type="text" class="form-control" name="Username" />
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="username"
+                      name="username"
+                    />
+                    <small
+                      *ngIf="
+                        onSubmitForm.get('username')?.invalid &&
+                        onSubmitForm.get('username')?.touched &&
+                        !onSubmitForm.controls['username'].hasError('pattern')
+                      "
+                      class="text-danger"
+                    >
+                      Please enter user name!
+                    </small>
+                    <small
+                      class="text-danger"
+                      *ngIf="
+                        onSubmitForm.controls['username'].hasError('pattern')
+                      "
+                    >
+                      Username must start with letters (no numbers), followed by
+                      a surname (numbers allowed).
+                    </small>
                   </div>
                 </div>
 
                 <div class="row mb-3">
-                  <label for="about" class="col-md-4 col-lg-3 col-form-label"
+                  <label class="col-md-4 col-lg-3 col-form-label">Email</label>
+                  <div class="col-md-8 col-lg-9">
+                    <input
+                      type="email"
+                      class="form-control"
+                      formControlName="email"
+                      name="email"
+                    /><small
+                      *ngIf="
+                        onSubmitForm.get('email')?.invalid &&
+                        onSubmitForm.get('email')?.touched &&
+                        !onSubmitForm.controls['email'].hasError('pattern')
+                      "
+                      class="text-danger"
+                    >
+                      Please enter email!
+                    </small>
+                    <small
+                      class="text-danger"
+                      *ngIf="onSubmitForm.controls['email'].hasError('pattern')"
+                    >
+                      First enter charactors then you can use numbers after that
+                      '&#64;', domain name then '.' and last two char.
+                    </small>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label class="col-md-4 col-lg-3 col-form-label"
+                    >Company</label
+                  >
+                  <div class="col-md-8 col-lg-9">
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="company"
+                      name="company"
+                    /><small
+                      *ngIf="
+                        onSubmitForm.get('company')?.invalid &&
+                        onSubmitForm.get('company')?.touched
+                      "
+                      class="text-danger"
+                    >
+                      Please enter company name!
+                    </small>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label name="JobId" class="col-md-4 col-lg-3 col-form-label"
+                    >Job</label
+                  >
+                  <div class="col-md-8 col-lg-9">
+                    <select
+                      formControlName="jobId"
+                      class="form-control"
+                      name="jobId"
+                    >
+                      <option
+                        *ngFor="let job of jobsOptions"
+                        [value]="job.value"
+                      >
+                        {{ job.text }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label class="col-md-4 col-lg-3 col-form-label">Phone</label>
+                  <div class="col-md-8 col-lg-9">
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="phone"
+                      name="phone"
+                    />
+                    <small
+                      *ngIf="
+                        onSubmitForm.get('phone')?.invalid &&
+                        !onSubmitForm.get('phone')?.hasError('minPhoneValue') &&
+                        !onSubmitForm.get('phone')?.hasError('maxPhoneValue') &&
+                        (onSubmitForm.get('phone')?.touched ||
+                          onSubmitForm.get('phone')?.dirty)
+                      "
+                      class="text-danger"
+                    >
+                      Please enter phone number!</small
+                    >
+                    <small
+                      *ngIf="
+                        onSubmitForm.get('phone')?.hasError('minPhoneValue')
+                      "
+                      class="text-danger"
+                    >
+                      Phone number must have at least 10 digits.
+                    </small>
+                    <small
+                      *ngIf="
+                        onSubmitForm.get('phone')?.hasError('maxPhoneValue')
+                      "
+                      class="text-danger"
+                    >
+                      Phone number cannot exceed 12.
+                    </small>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label class="col-md-4 col-lg-3 col-form-label"
+                    >Country</label
+                  >
+                  <div class="col-md-8 col-lg-9">
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="country"
+                      name="country"
+                    /><small
+                      *ngIf="
+                        onSubmitForm.get('country')?.invalid &&
+                        (onSubmitForm.get('country')?.touched ||
+                          onSubmitForm.get('country')?.dirty)
+                      "
+                      class="text-danger"
+                    >
+                      Please enter country!</small
+                    >
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label class="col-md-4 col-lg-3 col-form-label"
+                    >Address</label
+                  >
+                  <div class="col-md-8 col-lg-9">
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="address"
+                      name="address"
+                    /><small
+                      *ngIf="
+                        onSubmitForm.get('address')?.invalid &&
+                        (onSubmitForm.get('address')?.touched ||
+                          onSubmitForm.get('address')?.dirty)
+                      "
+                      class="text-danger"
+                    >
+                      Please enter address!</small
+                    >
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label class="col-md-4 col-lg-3 col-form-label"
                     >Discription</label
                   >
                   <div class="col-md-8 col-lg-9">
                     <textarea
+                      type="text"
                       class="form-control"
-                      name="Discription"
+                      formControlName="discription"
+                      name="discription"
                       style="height: 60px"
                     ></textarea>
+                    <small
+                      *ngIf="
+                        onSubmitForm.get('discription')?.invalid &&
+                        (onSubmitForm.get('discription')?.touched ||
+                          onSubmitForm.get('discription')?.dirty)
+                      "
+                      class="text-danger"
+                    >
+                      Please enter discription!</small
+                    >
                   </div>
                 </div>
 
                 <div class="row mb-3">
-                  <label for="company" class="col-md-4 col-lg-3 col-form-label"
-                    >Company</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input type="text" class="form-control" name="Company" />
-                  </div>
-                </div>
-                <input type="hidden" name="UserId" />
-                <input type="hidden" name="Password" />
-                <input type="hidden" name="Photo" />
-                <input type="hidden" name="ImagePath" />
-
-                <div class="row mb-3">
-                  <label
-                    name="JobId"
-                    class="col-md-4 col-lg-3 col-form-label"
-                  ></label>
-                  <div class="col-md-8 col-lg-9">
-                    <select
-                      name="JobId"
-                      class="form-control"
-                      asp-items="Model.JobList"
-                    ></select>
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <label for="Country" class="col-md-4 col-lg-3 col-form-label"
-                    >Country</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input type="text" class="form-control" name="Country" />
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <label for="Address" class="col-md-4 col-lg-3 col-form-label"
-                    >Address</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input type="text" class="form-control" name="Address" />
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <label for="Phone" class="col-md-4 col-lg-3 col-form-label"
-                    >Phone</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input type="text" class="form-control" name="Phone" />
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <label for="Email" class="col-md-4 col-lg-3 col-form-label"
-                    >Email</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input type="email" class="form-control" name="Email" />
-                  </div>
-                </div>
-
-                <div class="row mb-3">
-                  <label for="Twitter" class="col-md-4 col-lg-3 col-form-label"
+                  <label class="col-md-4 col-lg-3 col-form-label"
                     >Twitter Profile</label
                   >
                   <div class="col-md-8 col-lg-9">
@@ -283,7 +407,7 @@
                 </div>
 
                 <div class="row mb-3">
-                  <label for="Facebook" class="col-md-4 col-lg-3 col-form-label"
+                  <label class="col-md-4 col-lg-3 col-form-label"
                     >Facebook Profile</label
                   >
                   <div class="col-md-8 col-lg-9">
@@ -298,9 +422,7 @@
                 </div>
 
                 <div class="row mb-3">
-                  <label
-                    for="Instagram"
-                    class="col-md-4 col-lg-3 col-form-label"
+                  <label class="col-md-4 col-lg-3 col-form-label"
                     >Instagram Profile</label
                   >
                   <div class="col-md-8 col-lg-9">
@@ -315,7 +437,7 @@
                 </div>
 
                 <div class="row mb-3">
-                  <label for="Linkedin" class="col-md-4 col-lg-3 col-form-label"
+                  <label class="col-md-4 col-lg-3 col-form-label"
                     >Linkedin Profile</label
                   >
                   <div class="col-md-8 col-lg-9">
@@ -329,7 +451,7 @@
                   </div>
                 </div>
 
-                <div class="text-center">
+                <div class="pt-3">
                   <button type="submit" class="btn btn-primary">
                     Save Changes
                   </button>
@@ -404,71 +526,94 @@
 
             <div class="tab-pane fade pt-3" id="profile-change-password">
               <!-- Change Password Form -->
-              <h4 class="text-danger">Html.Raw(TempData["ChangePassword"])</h4>
-              <form
-                asp-action="ChangePassword"
-                asp-controller="Home"
-                method="post"
-              >
+              <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
                 <div class="row mb-3">
-                  <label
-                    for="currentPassword"
-                    class="col-md-4 col-lg-3 col-form-label"
+                  <label class="col-md-4 col-lg-3 col-form-label"
                     >Current Password</label
                   >
                   <div class="col-md-8 col-lg-9">
                     <input
-                      type="password"
+                      formControlName="currentPassword"
                       class="form-control"
-                      name="ChangePasswordVM.CurrentPassword"
+                      type="password"
                     />
+                    <div
+                      *ngIf="
+                        passwordForm.get('currentPassword')?.invalid &&
+                        (passwordForm.get('currentPassword')?.touched ||
+                          passwordForm.get('currentPassword')?.dirty)
+                      "
+                      class="text-danger"
+                    >
+                      Current password is required.
+                    </div>
                   </div>
                 </div>
 
                 <div class="row mb-3">
-                  <label
-                    for="newPassword"
-                    class="col-md-4 col-lg-3 col-form-label"
+                  <label class="col-md-4 col-lg-3 col-form-label"
                     >New Password</label
                   >
                   <div class="col-md-8 col-lg-9">
                     <input
+                      formControlName="newPassword"
                       type="password"
                       class="form-control"
-                      name="ChangePasswordVM.NewPassword"
                     />
-                    <span
-                      asp-validation-for="ChangePasswordVM.NewCPassword"
+                    <small
                       class="text-danger"
-                    ></span>
+                      *ngIf="
+                        passwordForm.controls['newPassword'].hasError('pattern')
+                      "
+                    >
+                      Password must be at least 8 characters long, with an
+                      uppercase, lowercase, number, and special character.
+                    </small>
                   </div>
                 </div>
 
                 <div class="row mb-3">
-                  <label
-                    for="renewPassword"
-                    class="col-md-4 col-lg-3 col-form-label"
+                  <label class="col-md-4 col-lg-3 col-form-label"
                     >Re-enter New Password</label
                   >
                   <div class="col-md-8 col-lg-9">
                     <input
+                      formControlName="confirmPassword"
                       type="password"
                       class="form-control"
-                      name="ChangePasswordVM.NewCPassword"
                     />
-                    <span
-                      asp-validation-for="ChangePasswordVM.NewCPassword"
+                    <div
+                      *ngIf="passwordForm.errors?.['mismatch']&&
+                      (passwordForm.get('confirmPassword')?.touched ||
+                        passwordForm.get('confirmPassword')?.dirty)"
                       class="text-danger"
-                    ></span>
+                    >
+                      Passwords do not match!
+                    </div>
+                    <div
+                      *ngIf="
+                        passwordForm.get('confirmPassword')?.invalid &&
+                        (passwordForm.get('confirmPassword')?.touched ||
+                          passwordForm.get('confirmPassword')?.dirty)
+                      "
+                      class="text-danger"
+                    >
+                      Confirm password is required.
+                    </div>
                   </div>
                 </div>
 
                 <div class="text-center">
-                  <button type="submit" class="btn btn-primary">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    [disabled]="passwordForm.invalid"
+                  >
                     Change Password
                   </button>
                 </div>
               </form>
+
               <!-- End Change Password Form -->
             </div>
           </div>

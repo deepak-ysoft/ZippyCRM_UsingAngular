@@ -6,8 +6,7 @@
   (click)="onAdd()"
 >
 </a>
-<p *ngIf="!isContacts">No Cantacts here!</p>
-<table *ngIf="isContacts" class="table">
+<table class="table">
   <thead class="text-center">
     <tr>
       <th>Contact Name</th>
@@ -21,7 +20,7 @@
       <th>Action</th>
     </tr>
   </thead>
-  <tbody class="text-center">
+  <tbody class="text-center" *ngIf="ContectList.length > 0">
     <tr *ngFor="let contact of ContectList; let i = index">
       <td>{{ contact.contactName }}</td>
       <td>{{ contact.email }}</td>
@@ -32,19 +31,19 @@
       <td>{{ contact.internalNotes }}</td>
       <td>
         <a
-          class="fas fa-pencil-alt fa-lg me-3"
+          class="fas fa-pencil-alt fa-md me-3"
           data-bs-toggle="modal"
           data-bs-target="#addContactModal"
           (click)="EditContact(contact)"
         ></a>
         <a
-          class="fa-solid fa-circle-info fa-xl text-info"
+          class="fa-solid fa-circle-info fa-lg text-info"
           data-bs-toggle="modal"
           data-bs-target="#addContactModal"
           (click)="ContactDetails(contact)"
         ></a>
         <a
-          class="fas fa-trash fa-lg text-danger ms-3"
+          class="fas fa-trash fa-md text-danger ms-3"
           (click)="DeleteContact(contact.contactId)"
         ></a>
       </td>
@@ -75,7 +74,7 @@
       </div>
       <div class="modal-body">
         <form
-          #contactForm="ngForm"
+          [formGroup]="onSubmitForm"
           *ngIf="
             modalPopupAndMsg == 'Edit Contact' ||
             modalPopupAndMsg == 'Create Contact'
@@ -89,85 +88,214 @@
                   <h5 class="card-title">{{ modalPopupAndMsg }}</h5>
                   <div class="mb-3 row">
                     <div class="col-6">
+                      <label for="title" class="form-label">Title</label>
+                      <select
+                        id="title"
+                        formControlName="title"
+                        class="form-control"
+                      >
+                        <option value="" disabled>- Select Title -</option>
+                        <option value="Mr">Mr</option>
+                        <option value="Miss">Miss</option>
+                        <option value="Ms">Ms</option>
+                        <option value="Mrs">Mrs</option>
+                      </select>
+                      <div *ngIf="shouldShowError('title')" class="text-danger">
+                        <small
+                          *ngIf="
+                            onSubmitForm.get('title')?.hasError('required')
+                          "
+                          >Please select title.</small
+                        >
+                      </div>
+                    </div>
+                    <div class="col-6">
                       <label for="contactName" class="form-label"
                         >Contact Name</label
                       >
                       <input
+                        placeholder="Enter Name..."
                         type="text"
                         class="form-control"
-                        [(ngModel)]="contact.contactName"
+                        formControlName="contactName"
                         name="contactName"
                         id="contactName"
-                        required
                       />
+                      <small
+                        *ngIf="shouldShowError('contactName')"
+                        class="text-danger"
+                      >
+                        Please enter Contact Name.
+                      </small>
                     </div>
+                  </div>
+                  <div class="mb-3 row">
+                    <div class="col-6">
+                      <label for="phone" class="form-label">Phone</label>
+                      <input
+                        placeholder="Enter phone Number..."
+                        type="text"
+                        class="form-control"
+                        formControlName="phone"
+                        name="phone"
+                      />
+                      <small
+                        *ngIf="!onSubmitForm.get('phone')?.errors?.['pattern'] &&
+                        !onSubmitForm
+                          .get('phone')
+                          ?.hasError('minPhoneValue') &&
+                        !onSubmitForm
+                          .get('phone')
+                          ?.hasError('maxPhoneValue') &&
+                        shouldShowError('phone') 
+                      "
+                        class="text-danger"
+                      >
+                        Please enter phone number.
+                      </small>
+                      <small
+                        *ngIf="
+                          onSubmitForm.get('phone')?.hasError('minPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Phone number must have at least 10 digits.
+                      </small>
+                      <small
+                        *ngIf="
+                          onSubmitForm.get('phone')?.hasError('maxPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Phone number cannot exceed 12.
+                      </small>
+                      <small
+                        *ngIf="onSubmitForm.get('phone')?.errors?.['pattern']"
+                        class="text-danger"
+                      >
+                        Phone number can contain only numbers, spaces, and an
+                        optional '+' sign at the start.
+                      </small>
+                    </div>
+                    <div class="col-6">
+                      <label for="mobile" class="form-label">Mobile</label>
+                      <input
+                        placeholder="Enter Mobile Number..."
+                        type="text"
+                        class="form-control"
+                        formControlName="mobile"
+                        name="mobile"
+                      />
+                      <small
+                        *ngIf="!onSubmitForm.get('mobile')?.errors?.['pattern'] &&
+                          !onSubmitForm
+                            .get('mobile')
+                            ?.hasError('minPhoneValue') &&
+                          !onSubmitForm
+                            .get('mobile')
+                            ?.hasError('maxPhoneValue') &&
+                          shouldShowError('mobile')
+                        "
+                        class="text-danger"
+                      >
+                        Please enter mobile number!</small
+                      >
+                      <small
+                        *ngIf="
+                          onSubmitForm.get('mobile')?.hasError('minPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        mobile number must have at least 10 digits.
+                      </small>
+                      <small
+                        *ngIf="
+                          onSubmitForm.get('mobile')?.hasError('maxPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Mobile number cannot exceed 12.
+                      </small>
+                      <small
+                        *ngIf="onSubmitForm.get('mobile')?.errors?.['pattern']"
+                        class="text-danger"
+                      >
+                        Only numbers and an optional + at the start are allowed.
+                      </small>
+                    </div>
+                  </div>
+                  <div class="mb-3 row">
                     <div class="col-6">
                       <label for="email" class="form-label">Email</label>
                       <input
                         type="hidden"
-                        [(ngModel)]="contact.contactId"
+                        formControlName="contactId"
                         name="contactId"
                       />
                       <input
+                        placeholder="Enter Email..."
                         type="email"
                         class="form-control"
-                        [(ngModel)]="contact.email"
+                        formControlName="email"
                         name="email"
                         required
                       />
+                      <small
+                        *ngIf="
+                          shouldShowError('email') &&
+                          !onSubmitForm.controls['email'].hasError('pattern')
+                        "
+                        class="text-danger"
+                      >
+                        Please enter Email.
+                      </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.controls['email'].hasError('pattern')
+                        "
+                      >
+                        First enter 5 charactors then you can use numbers after
+                        that '&#64;', domain name then '.' and last two char.
+                      </small>
                     </div>
-                  </div>
-                  <div class="mb-3 row">
-                    <div class="col-6">
-                      <label for="title" class="form-label">Title</label>
-                      <input
-                        type="text"
-                        class="form-control"
-                        [(ngModel)]="contact.title"
-                        name="title"
-                      />
-                    </div>
-                    <div class="col-6">
-                      <label for="phone" class="form-label">Phone</label>
-                      <input
-                        type="text"
-                        class="form-control"
-                        [(ngModel)]="contact.phone"
-                        name="phone"
-                      />
-                    </div>
-                  </div>
-                  <div class="mb-3 row">
+
                     <div class="col-6">
                       <label for="jobPosition" class="form-label"
                         >Job Position</label
                       >
                       <input
+                        placeholder="Enter Job Position..."
                         type="text"
                         class="form-control"
-                        [(ngModel)]="contact.jobPosition"
+                        formControlName="jobPosition"
                         name="jobPosition"
                       />
-                    </div>
-                    <div class="col-6">
-                      <label for="mobile" class="form-label">Mobile</label>
-                      <input
-                        type="text"
-                        class="form-control"
-                        [(ngModel)]="contact.mobile"
-                        name="mobile"
-                      />
+                      <small
+                        *ngIf="shouldShowError('jobPosition')"
+                        class="text-danger"
+                      >
+                        Please enter job Position.
+                      </small>
                     </div>
                   </div>
+
                   <div class="mb-3 row">
                     <label for="internalNotes" class="form-label"
                       >Internal Notes</label
                     >
                     <textarea
                       class="form-control"
-                      [(ngModel)]="contact.internalNotes"
+                      formControlName="internalNotes"
+                      placeholder="Enter Internal Notes"
                       name="internalNotes"
                     ></textarea>
+                    <small
+                      *ngIf="shouldShowError('internalNotes')"
+                      class="text-danger"
+                    >
+                      Please enter Internal Notes.
+                    </small>
                   </div>
                 </div>
               </div>

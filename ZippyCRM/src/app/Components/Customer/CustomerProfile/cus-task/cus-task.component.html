@@ -18,7 +18,7 @@
       <th></th>
     </tr>
   </thead>
-  <tbody>
+  <tbody *ngIf="taskList.length > 0">
     <tr *ngFor="let task of taskList; let i = index">
       <td>
         {{ task.activityType }}
@@ -80,7 +80,7 @@
       </div>
       <div class="modal-body">
         <form
-          #TaskForm="ngForm"
+          [formGroup]="onSubmitForm"
           *ngIf="modalPopupAndMsg != 'Contact Details'"
           (ngSubmit)="onSubmit()"
         >
@@ -95,27 +95,38 @@
                         >Task Name</label
                       >
                       <input
+                        placeholder="Enter Activity Type..."
                         type="text"
                         class="form-control"
-                        [(ngModel)]="task.activityType"
+                        formControlName="activityType"
                         name="activityType"
-                        required
-                      />
+                      /><small
+                        *ngIf="shouldShowError('activityType')"
+                        class="text-danger"
+                      >
+                        Please enter Activity Type.
+                      </small>
                     </div>
                     <div class="col-6">
                       <label for="summary" class="form-label">Summary</label>
                       <input
                         type="hidden"
-                        [(ngModel)]="task.taskId"
+                        formControlName="taskId"
                         name="taskId"
                       />
                       <input
-                        type="summary"
+                        placeholder="Enter Summary..."
+                        type="text"
                         class="form-control"
-                        [(ngModel)]="task.summary"
+                        formControlName="summary"
                         name="summary"
-                        required
                       />
+                      <small
+                        *ngIf="shouldShowError('summary')"
+                        class="text-danger"
+                      >
+                        Please enter Summary.
+                      </small>
                     </div>
                   </div>
                   <div class="mb-3 row">
@@ -124,34 +135,61 @@
                       <input
                         type="date"
                         class="form-control"
-                        [(ngModel)]="task.dueDate"
+                        formControlName="dueDate"
                         name="dueDate"
-                      />
+                      /><small
+                        *ngIf="shouldShowError('dueDate')"
+                        class="text-danger"
+                      >
+                        Please enter Due Date.
+                      </small>
                     </div>
                     <div class="col-6">
                       <label for="phone" class="form-label">User Name</label>
                       <select
-                        [(ngModel)]="task.userId"
+                        formControlName="userId"
                         class="form-control"
                         name="userId"
                       >
+                        <option value="" disabled>- Select User -</option>
                         <option
-                          *ngFor="let user of userOptions"
+                          *ngFor="
+                            let user of userOptions;
+                            trackBy: trackByUserId
+                          "
                           [value]="user.value"
                         >
                           {{ user.text }}
                         </option>
                       </select>
+                      <div
+                        *ngIf="shouldShowError('userId')"
+                        class="text-danger"
+                      >
+                        <small
+                          *ngIf="
+                            onSubmitForm.get('userId')?.hasError('required')
+                          "
+                          >Please select User Name.</small
+                        >
+                      </div>
                     </div>
                   </div>
                   <div class="mb-3 row">
                     <label for="comments" class="form-label">Comments</label>
                     <textarea
                       type="text"
+                      placeholder="Enter Comments..."
                       class="form-control"
-                      [(ngModel)]="task.comments"
+                      formControlName="comments"
                       name="comments"
-                    ></textarea>
+                    ></textarea
+                    ><small
+                      *ngIf="shouldShowError('comments')"
+                      class="text-danger"
+                    >
+                      Please enter Comments.
+                    </small>
                   </div>
                 </div>
               </div>

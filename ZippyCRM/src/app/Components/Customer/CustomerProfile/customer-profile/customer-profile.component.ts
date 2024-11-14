@@ -1,4 +1,12 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { CusContactComponent } from '../cus-contact/cus-contact.component';
 import { ContactService } from '../../../../Services/customerService/contact.service';
 import { Contact } from '../../../../Models/cusContact.model';
@@ -14,6 +22,15 @@ import { NotesService } from '../../../../Services/customerService/notes.service
 import { AppointmentService } from '../../../../Services/customerService/appointment.service';
 import { CusNotesComponent } from '../cus-notes/cus-notes.component';
 import { CusAppointmentComponent } from '../cus-appointment/cus-appointment.component';
+import { CalendarOptions } from '@fullcalendar/core/index.js';
+import dayGridPlugin from '@fullcalendar/daygrid'; // FullCalendar plugins
+import interactionPlugin from '@fullcalendar/interaction';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import { HttpClient } from '@angular/common/http';
+import { FullCalendarComponent } from '@fullcalendar/angular';
+import { Documents } from '../../../../Models/cusDocuments.model';
+import { DocumentsService } from '../../../../Services/customerService/documents.service';
+import { CusDocumentsComponent } from '../cus-documents/cus-documents.component';
 
 @Component({
   selector: 'app-customer-profile',
@@ -24,6 +41,7 @@ import { CusAppointmentComponent } from '../cus-appointment/cus-appointment.comp
     CusTaskComponent,
     CusNotesComponent,
     CusAppointmentComponent,
+    CusDocumentsComponent,
     CommonModule,
   ],
   templateUrl: './customer-profile.component.html',
@@ -35,30 +53,59 @@ export class CustomerProfileComponent implements OnInit {
   taskService = inject(TaskService);
   notesService = inject(NotesService);
   appointmentService = inject(AppointmentService);
+  documentsService = inject(DocumentsService);
+  http = inject(HttpClient);
   addressList: Addresses[] = [];
   ContectList: Contact[] = [];
   taskList: Contact[] = [];
   notesList: Contact[] = [];
+  documentsList: Documents[] = [];
   appointmentList: Contact[] = [];
   router = inject(Router);
-  customer?: Customer;
+  customer: Customer;
+  customerId: any;
+  @Output() tabChanged = new EventEmitter<string>();
+  @ViewChild(CusAppointmentComponent)
+  appointmentComponent!: CusAppointmentComponent;
+
   activeTab: string = '#profile-Contacts'; // Default tab
+  calendarOptions: CalendarOptions = {
+    plugins: [dayGridPlugin, interactionPlugin, timeGridPlugin],
+    initialView: 'dayGridMonth',
+    editable: true,
+    selectable: true,
+    events: this.fetchEvents.bind(this),
+  };
+
+  /**
+   *
+   */
+  constructor() {
+    this.customer = new Customer();
+  }
+
   ngOnInit(): void {
     // Retrieve customer data from the router's state
     const state = window.history.state as { customer: Customer };
-
+    this.calendarOptions = {
+      plugins: [dayGridPlugin, interactionPlugin, timeGridPlugin],
+      initialView: 'dayGridMonth',
+      editable: true,
+      selectable: true,
+      events: this.fetchEvents.bind(this),
+    };
     if (state && state.customer) {
       this.customer = state.customer;
       this.getContactList(this.customer.cId);
     }
-    // Tab active on customer profile
-    // this.activeTab = '#profile-Contacts';
-    // localStorage.setItem('activeTab', this.activeTab); // Ensure it's saved to localStorage
+    //Tab active on customer profile
+    this.activeTab = '#profile-Contacts';
+    localStorage.setItem('activeTab', this.activeTab); // Ensure it's saved to localStorage
 
-    const storedTab = localStorage.getItem('activeTab');
-    if (storedTab) {
-      this.activeTab = storedTab;
-    }
+    // const storedTab = localStorage.getItem('activeTab');
+    // if (storedTab) {
+    //   this.activeTab = storedTab;
+    // }
   }
   activateTab(tabId: string, customerId: number | undefined): void {
     this.activeTab = tabId;
@@ -79,14 +126,22 @@ export class CustomerProfileComponent implements OnInit {
       case '#profile-Notes':
         this.getCustomerNotes(customerId);
         break;
+      case '#profile-Documents':
+        this.getCustomerDocuments(customerId);
+        break;
       case '#profile-AppointMent':
         this.getCustomerAppointMent(customerId);
+        // Trigger FullCalendar refresh on the appointment component after switching tabs
+        setTimeout(() => {
+          if (this.appointmentComponent) {
+            this.appointmentComponent.refreshCalendar(); // Call the method from the CustomerAppointmentComponent
+          }
+        }, 100); // Delay to ensure tab content is fully rendered
         break;
     }
   }
 
   getContactList(id: any) {
-    debugger;
     this.service.getContects(id).subscribe((res: any) => {
       this.ContectList = res;
     });
@@ -97,7 +152,6 @@ export class CustomerProfileComponent implements OnInit {
     });
   }
   getCustomerTasks(id: any) {
-    debugger;
     this.taskService.getTask(id).subscribe((res: any) => {
       this.taskList = res;
     });
@@ -107,9 +161,61 @@ export class CustomerProfileComponent implements OnInit {
       this.notesList = res;
     });
   }
-  getCustomerAppointMent(id: any) {
-    this.appointmentService.getAppointment(id).subscribe((res: any) => {
-      this.appointmentList = res;
+  getCustomerDocuments(id: any) {
+    this.documentsService.getDocuments(id).subscribe((res: any) => {
+      this.documentsList = res;
     });
+  }
+  getCustomerAppointMent(customerId: any) {
+    this.customerId = customerId;
+    this.callFetchEvents();
+  }
+  callFetchEvents(): void {
+    const fetchInfo = {};
+
+    const successCallback = (events: any) => {
+      console.log('Fetched events:', events);
+    };
+
+    const failureCallback = (error: any) => {
+      console.error('Failed to fetch events:', error);
+    };
+
+    // Call fetchEvents to load data
+    this.fetchEvents(fetchInfo, successCallback, failureCallback);
+  }
+  fetchEvents(
+    fetchInfo: any,
+    successCallback: any,
+    failureCallback: any
+  ): void {
+    this.http
+      .get(
+        `https://localhost:7269/api/Customer/GetAppointments/${this.customerId}`
+      )
+      .subscribe(
+        (data: any) => {
+          const events = data.map(
+            (appointment: {
+              appointmentid: any;
+              subject: any;
+              start: any;
+              end: any;
+              description: any;
+            }) => ({
+              id: appointment.appointmentid,
+              title: appointment.subject,
+              start: appointment.start,
+              end: appointment.end,
+              description: appointment.description,
+            })
+          );
+          successCallback(events);
+        },
+        (error) => {
+          console.error('Error loading events', error);
+          failureCallback(error);
+        }
+      );
   }
 }

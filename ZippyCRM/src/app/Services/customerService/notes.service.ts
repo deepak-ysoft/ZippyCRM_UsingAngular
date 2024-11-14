@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotesService {
   constructor(private http: HttpClient) {}
@@ -10,7 +10,15 @@ export class NotesService {
     return this.http.get(`https://localhost:7269/api/Customer/GetNotes/${CId}`);
   }
 
-  inserNotes(notes:any){
-    return this.http.post(`https://localhost:7269/api/Customer/CreateEditNotes`,notes);
+  inserNotes(notes: any) {
+    return this.http.post(
+      `https://localhost:7269/api/Customer/CreateEditNotes`,
+      notes
+    );
+  }
+  succesDelete(id: number) {
+    return this.http.delete(
+      `https://localhost:7269/api/Customer/DeleteNotes/${id}`
+    );
   }
 }

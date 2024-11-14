@@ -1,120 +1,311 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   Customer,
   gender,
   language,
   title,
-  types,
 } from '../../../Models/customer.model';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { CustomerServiceService } from '../../../Services/customerService/customer-service.service';
-import { subscribe } from 'diagnostics_channel';
-import { HttpErrorResponse } from '@angular/common/http';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-customer-register',
   standalone: true,
-  imports: [FormsModule, RouterLink, CommonModule],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './customer-register.component.html',
   styleUrl: './customer-register.component.css',
 })
 export class CustomerRegisterComponent implements OnInit {
-  customer!: Customer;
-  message = '';
+  customer: Customer = new Customer(); // Initialize customer with a default object
+  message = 'Add Customer';
   selectedFile: any = null;
   titleOptions: Array<{ value: number; text: string }> = [];
   genderOptions: Array<{ value: number; text: string }> = [];
   languageOptions: Array<{ value: number; text: string }> = [];
   router = inject(Router);
   cusService = inject(CustomerServiceService);
+  onSubmitForm: FormGroup;
+  submitted = false;
+
+  constructor(private fb: FormBuilder, private route: ActivatedRoute) {
+    this.onSubmitForm = this.fb.group(
+      {
+        pan: [''],
+        gst: [''],
+        title: ['', Validators.required],
+        firstName: [
+          '',
+          [Validators.required, Validators.pattern(/^[A-Za-z]*$/)],
+        ],
+        middleName: ['', [Validators.pattern(/^[A-Za-z\s]*$/)]],
+        lastName: ['', Validators.required],
+        gender: ['', Validators.required],
+        position: ['', Validators.required],
+        language: ['', Validators.required],
+        dayOfBirth: ['', Validators.required],
+        phone: [
+          '',
+          [
+            Validators.required,
+            phoneValueRangeValidator(1000000000, 999999999999),
+          ],
+        ],
+        phoneOther: [
+          '',
+          [
+            Validators.required,
+            phoneValueRangeValidator(1000000000, 999999999999),
+          ],
+        ],
+        cell: ['', Validators.required],
+        fax: ['', Validators.required],
+        email: [
+          '',
+          [
+            Validators.required,
+            Validators.pattern(
+              /^[a-zA-Z]{5,}[a-zA-Z0-9._%+-]*@[a-zA-Z.-]+\.[a-zA-Z]{2,}$/
+            ),
+          ],
+        ],
+        email2: [
+          '',
+          [
+            Validators.required,
+            Validators.pattern(
+              /^[a-zA-Z]{5,}[a-zA-Z0-9._%+-]*@[a-zA-Z.-]+\.[a-zA-Z]{2,}$/
+            ),
+          ],
+        ],
+        website: ['', Validators.required],
+        comments: ['', Validators.required],
+      },
+      { validators: this.panOrGstValidator() }
+    );
+  }
+
+  // Custom validator to check if either PAN or GST is filled
+  private panOrGstValidator(): ValidatorFn {
+    return (formGroup: AbstractControl): { [key: string]: boolean } | null => {
+      const pan = formGroup.get('pan')?.value;
+      const gst = formGroup.get('gst')?.value;
+      debugger;
+      if (pan || gst) {
+        return null; // Valid if either pan or gst has a value
+      }
+
+      return { panOrGstRequired: true }; // Invalid if both are empty
+    };
+  }
+
   ngOnInit(): void {
     this.titleOptions = this.convertEnumToArray(title);
     this.genderOptions = this.convertEnumToArray(gender);
     this.languageOptions = this.convertEnumToArray(language);
-    // Retrieve customer data from the router's state
     const state = window.history.state;
-
     if (state && state.customer) {
-      debugger;
       this.customer = state.customer;
-    }
-    debugger;
-    if (this.customer?.pan != '') {
-      this.getAccountType('Individual');
+
+      if (
+        this.titleOptions.length &&
+        this.genderOptions.length &&
+        this.languageOptions.length
+      ) {
+        this.onSubmitForm.patchValue({
+          cId: this.customer.cId,
+          type: this.customer.type,
+          pan: this.customer.pan,
+          gst: this.customer.gst,
+          title: this.customer.title,
+          firstName: this.customer.firstName,
+          middleName: this.customer.middleName,
+          lastName: this.customer.lastName,
+          position: this.customer.position,
+          gender: this.customer.gender,
+          dayOfBirth: this.customer.dayOfBirth,
+          phone: this.customer.phone,
+          phoneOther: this.customer.phoneOther,
+          cell: this.customer.cell,
+          fax: this.customer.fax,
+          email: this.customer.email,
+          email2: this.customer.email2,
+          website: this.customer.website,
+          language: this.customer.language,
+          comments: this.customer.comments,
+          photo: this.customer.photo,
+        });
+        this.onSubmitForm.get('title')?.setValue(this.customer.title);
+        this.onSubmitForm.get('gender')?.setValue(this.customer.gender);
+        this.onSubmitForm.get('language')?.setValue(this.customer.language);
+        this.message = 'Edit Customer';
+      }
     } else {
+      this.customer = new Customer();
+      this.message = 'Create New Customer';
+    }
+
+    if (this.customer.pan == null) {
       this.getAccountType('Commercial');
+    } else {
+      this.getAccountType('Individual');
     }
   }
   convertEnumToArray(enumObj: any): Array<{ value: number; text: string }> {
     return Object.keys(enumObj)
-      .filter((key) => isNaN(Number(key)))
-      .map((key) => ({ value: enumObj[key], text: key }));
+      .filter((key) => isNaN(Number(key))) // filters out numeric keys
+      .map((key) => ({ value: enumObj[key], text: key })); // makes it an array of {value, text}
   }
+
   Individual: boolean = true;
-  Commercial: boolean = true;
+  Commercial: boolean = false;
   getAccountType(type: any) {
-    if (type == 'Individual') {
+    if (type == 'Commercial') {
+      this.Individual = false;
+      this.Commercial = true;
+    } else {
       this.Commercial = false;
       this.Individual = true;
-    } else {
-      this.Commercial = true;
-      this.Individual = false;
     }
   }
   onFileChange(event: any): void {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       this.selectedFile = file;
-      debugger;
       console.log(this.selectedFile);
     }
   }
 
   onSubmit(): void {
-    const formData = new FormData();
+    this.submitted = true;
+    if (!this.onSubmitForm.invalid) {
+      const formData = new FormData();
 
-    if (this.customer?.cId) {
-      formData.append('cId', this.customer.cId.toString());
-    }
-    this.customer.type = 1;
-    formData.append('type', this.customer.type.toString() || '1');
-    formData.append('pan', this.customer.pan || '');
-    formData.append('gst', this.customer.gst || '');
-    formData.append('title', this.customer.title.toString() || '');
-    formData.append('firstName', this.customer.firstName || ''); // Required field
-    formData.append('middleName', this.customer.middleName || '');
-    formData.append('lastName', this.customer.lastName || ''); // Required field
-    formData.append('position', this.customer.position || '');
-    formData.append('gender', this.customer.gender.toString() || '');
-    formData.append(
-      'dayOfBirth',
-      this.customer.dayOfBirth ? this.customer.dayOfBirth.toString() : ''
-    );
-    formData.append('phone', this.customer.phone || '');
-    formData.append('phoneOther', this.customer.phoneOther || '');
-    formData.append('cell', this.customer.cell || '');
-    formData.append('fax', this.customer.fax || '');
-    formData.append('email', this.customer.email || ''); // Required field
-    formData.append('email2', this.customer.email2 || '');
-    formData.append('website', this.customer.website || '');
-    formData.append('language', this.customer.language.toString() || '');
-    formData.append('comments', this.customer.comments || '');
-
-    if (this.selectedFile) {
-      formData.append('photo', this.selectedFile, this.selectedFile.name);
-    }
-
-    console.log('Submitting FormData:', formData);
-
-    this.cusService.insertCustomer(formData).subscribe((res: any) => {
-      if (res) {
-        console.log('Response:', res);
-        this.router.navigateByUrl('customer-list');
-      } else {
-        alert('Something went wrong.');
+      if (this.customer?.cId) {
+        formData.append('cId', this.customer?.cId.toString() || '');
       }
-    });
+      this.customer.type = 1;
+      formData.append('type', this.onSubmitForm.get('type')?.value || '1');
+      formData.append('pan', this.onSubmitForm.get('pan')?.value || '');
+      formData.append('gst', this.onSubmitForm.get('gst')?.value || '');
+      formData.append('title', this.onSubmitForm.get('title')?.value || '');
+      formData.append(
+        'firstName',
+        this.onSubmitForm.get('firstName')?.value || ''
+      ); // Required field
+      formData.append(
+        'middleName',
+        this.onSubmitForm.get('middleName')?.value || ''
+      );
+      formData.append(
+        'lastName',
+        this.onSubmitForm.get('lastName')?.value || ''
+      ); // Required field
+      formData.append(
+        'position',
+        this.onSubmitForm.get('position')?.value || ''
+      );
+      formData.append('gender', this.onSubmitForm.get('gender')?.value || '');
+      formData.append(
+        'dayOfBirth',
+        this.onSubmitForm.get('dayOfBirth')?.value || ''
+      );
+      formData.append('phone', this.onSubmitForm.get('phone')?.value || '');
+      formData.append(
+        'phoneOther',
+        this.onSubmitForm.get('phoneOther')?.value || ''
+      );
+      formData.append('cell', this.onSubmitForm.get('cell')?.value || '');
+      formData.append('fax', this.onSubmitForm.get('fax')?.value || '');
+      formData.append('email', this.onSubmitForm.get('email')?.value || ''); // Required field
+      formData.append('email2', this.onSubmitForm.get('email2')?.value || '');
+      formData.append('website', this.onSubmitForm.get('website')?.value || '');
+      formData.append(
+        'language',
+        this.onSubmitForm.get('language')?.value || ''
+      );
+      formData.append(
+        'comments',
+        this.onSubmitForm.get('comments')?.value || ''
+      );
+
+      if (this.selectedFile) {
+        formData.append('photo', this.selectedFile, this.selectedFile.name);
+      }
+
+      console.log('Submitting FormData:', formData);
+
+      this.cusService.insertCustomer(formData).subscribe((res: any) => {
+        if (res.success) {
+          console.log('Response:', res);
+          this.router.navigateByUrl('customer-list');
+        } else if (res.message == 'emai1') {
+          Swal.fire({
+            title: 'Error!',
+            text: 'First email is already exist.',
+            icon: 'error',
+            timer: 2000, // Auto close after 2000 milliseconds
+            showConfirmButton: false,
+          });
+        } else if (res.message == 'emai2') {
+          Swal.fire({
+            title: 'Error!',
+            text: 'Second email is already exist.',
+            icon: 'error',
+            timer: 2000, // Auto close after 2000 milliseconds
+            showConfirmButton: false,
+          });
+        } else {
+          Swal.fire({
+            title: 'Error!',
+            text: 'Somthing is wrong.',
+            icon: 'error',
+            timer: 2000, // Auto close after 2000 milliseconds
+            showConfirmButton: false,
+          });
+        }
+      });
+    }
   }
+  shouldShowError(controlName: string): boolean {
+    const control = this.onSubmitForm.get(controlName);
+    return (
+      (control?.invalid &&
+        (control.touched || control.dirty || this.submitted)) ??
+      false
+    );
+  }
+}
+
+export function phoneValueRangeValidator(
+  minValue: number,
+  maxValue: number
+): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const phoneValue = +control.value; // Convert to a number
+
+    if (!control.value || isNaN(phoneValue)) {
+      return null; // If the field is empty or not a number, return no error
+    }
+
+    if (phoneValue < minValue) {
+      return { minPhoneValue: true };
+    }
+
+    if (phoneValue > maxValue) {
+      return { maxPhoneValue: true };
+    }
+
+    return null; // If within range, no error
+  };
 }

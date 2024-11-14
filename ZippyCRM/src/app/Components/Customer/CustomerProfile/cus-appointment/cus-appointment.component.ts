@@ -1,24 +1,79 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  Input,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {
   FullCalendarComponent,
   FullCalendarModule,
-  
 } from '@fullcalendar/angular'; // Import the FullCalendar component
 import dayGridPlugin from '@fullcalendar/daygrid'; // FullCalendar plugins
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { CalendarOptions } from '@fullcalendar/core';
 import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
+import { Appointment } from '../../../../Models/cusAppointment.model';
+import { AppointmentService } from '../../../../Services/customerService/appointment.service';
+import { CustomerServiceService } from '../../../../Services/customerService/customer-service.service';
+declare var bootstrap: any;
+
 @Component({
   selector: 'app-cus-appointment',
   standalone: true,
-  imports: [FullCalendarModule],
+  imports: [FullCalendarModule, CommonModule, ReactiveFormsModule],
   templateUrl: './cus-appointment.component.html',
   styleUrl: './cus-appointment.component.css',
 })
 export class CusAppointmentComponent implements OnInit {
-  @ViewChild('calendar') calendarComponent?: FullCalendarComponent; // Access to the calendar instance
+  @ViewChild('calendar') calendarComponent!: FullCalendarComponent; // Access to the calendar instance
   @Input() customerId: any;
+  modalPopupAndMsg = 'Create Appointment';
+  appointment: Appointment;
+  service = inject(AppointmentService);
+  cusService = inject(CustomerServiceService);
+  @ViewChild('addAppointmentModal', { static: false })
+  addAppointmentModal!: ElementRef;
+  submitted = false;
+
+  onSubmitForm: FormGroup = new FormGroup({
+    appointmentId: new FormControl(),
+    cId: new FormControl(),
+    subject: new FormControl('', [Validators.required]),
+    description: new FormControl('', [Validators.required]),
+    startDate: new FormControl('', [Validators.required]),
+    endDate: new FormControl('', [Validators.required]),
+  });
+
+  @Input() set tabChange(tabId: string) {
+    if (tabId === '#profile-AppointMent') {
+      this.refreshCalendar(); // Call refresh when "Appointments" tab is active
+    }
+  }
+
+  refreshCalendar(): void {
+    if (this.calendarComponent) {
+      setTimeout(() => {
+        const calendarApi = this.calendarComponent.getApi();
+        calendarApi.updateSize();
+        calendarApi.render();
+      }, 0);
+    }
+  }
+
   // Define calendar options
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, interactionPlugin, timeGridPlugin],
@@ -31,8 +86,54 @@ export class CusAppointmentComponent implements OnInit {
     eventClick: this.handleEventClick.bind(this), // Handle event click
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.appointment = new Appointment();
+  }
 
+  onAdd() {
+    this.onSubmitForm.reset();
+    this.modalPopupAndMsg = 'Create Appointment';
+  }
+
+  onSubmit() {
+    this.submitted = true;
+    if (this.onSubmitForm.valid) {
+      if (this.onSubmitForm.get('appointmentId')?.value == null) {
+        this.onSubmitForm.get('appointmentId')?.setValue(0);
+      }
+      this.onSubmitForm.get('cId')?.setValue(this.customerId);
+      this.service
+        .insertAppointment(this.onSubmitForm.value)
+        .subscribe((res: any) => {
+          if (res) {
+            this.appointment = new Appointment();
+            const modal = bootstrap.Modal.getInstance(
+              this.addAppointmentModal.nativeElement
+            );
+            modal.hide();
+            this.calendarOptions = {
+              initialView: 'dayGridMonth',
+              plugins: [dayGridPlugin, interactionPlugin],
+              editable: true,
+              events: this.fetchEvents.bind(this), // Binding `fetchEvents` for event fetching
+              eventDrop: this.handleEventDrop.bind(this), // Handle event drop
+              eventResize: this.handleEventResize.bind(this), // Handle event resize
+              eventClick: this.handleEventClick.bind(this), // Handle event click
+            };
+          }
+        });
+    }
+  }
+
+  shouldShowError(controlName: string): boolean {
+    const control = this.onSubmitForm.get(controlName);
+    return (
+      (control?.invalid &&
+        (control.touched || control.dirty || this.submitted)) ??
+      false
+    );
+  }
+  
   ngOnInit(): void {
     this.calendarOptions = {
       initialView: 'dayGridMonth',
@@ -84,24 +185,29 @@ export class CusAppointmentComponent implements OnInit {
   // Handle event drop (move event)
   handleEventDrop(eventDropInfo: { event: any; revert: () => void }): void {
     const event = eventDropInfo.event;
+    const eventId = event.id || Math.random().toString(36).substring(2, 9);
     const newStart = event.start.toISOString();
     const newEnd = event.end ? event.end.toISOString() : newStart;
 
-    this.http
-      .post('/api/UpdateAppointment', {
-        id: event.id,
-        newStart,
-        newEnd,
-      })
-      .subscribe(
-        (response) => {
-          console.log('Event updated successfully');
-        },
-        (error) => {
-          console.error('Error updating event', error);
-          eventDropInfo.revert(); // Revert the changes if failed
-        }
-      );
+    const payload = {
+      id: eventId,
+      newStart: newStart,
+      newEnd: newEnd,
+    };
+    console.log('Payload:', { id: eventId, newStart, newEnd });
+
+    this.service.updateAppointment(eventId, newStart, newEnd).subscribe({
+      next: (response) => {
+        console.log('Event updated successfully', response);
+      },
+      error: (error) => {
+        console.error('Error updating event', error);
+        eventDropInfo.revert(); // Revert the changes if failed
+      },
+      complete: () => {
+        console.log('Request completed.');
+      },
+    });
   }
 
   // Handle event resize
@@ -109,9 +215,8 @@ export class CusAppointmentComponent implements OnInit {
     const event = eventResizeInfo.event;
     const newStart = event.start.toISOString();
     const newEnd = event.end ? event.end.toISOString() : newStart;
-
     this.http
-      .post('/api/UpdateAppointment', {
+      .post(`https://localhost:7269/api/Customer/UpdateAppointment`, {
         id: event.id,
         newStart,
         newEnd,
@@ -138,11 +243,69 @@ export class CusAppointmentComponent implements OnInit {
       .subscribe(
         (data: any) => {
           // Show appointment details (can integrate with a modal)
-          alert('Appointment Details: ' + JSON.stringify(data));
+
+          this.appointment = data;
+
+          const modalElement = this.addAppointmentModal?.nativeElement;
+          console.log('data', this.appointment);
+          this.modalPopupAndMsg = 'Appointment Details';
+
+          const modal =
+            bootstrap.Modal.getInstance(modalElement) ||
+            new bootstrap.Modal(modalElement);
+          modal.show(); // Correct method to show the modal
         },
         (error) => {
           console.error('Error fetching appointment details', error);
         }
       );
+  }
+  editAppointment(appointment: Appointment) {
+    this.onSubmitForm.patchValue({
+      subject: appointment.subject,
+      description: appointment.description,
+      startDate: appointment.startDate,
+      endDate: appointment.endDate,
+      appointmentId: appointment.appointmentId,
+    });
+    this.appointment = appointment;
+    this.modalPopupAndMsg = 'Edit Appointment';
+    const modalElement = this.addAppointmentModal?.nativeElement;
+
+    if (modalElement) {
+      const modal =
+        bootstrap.Modal.getInstance(modalElement) ||
+        new bootstrap.Modal(modalElement);
+      modal.hide(); // Close the modal first
+
+      // Reopen the modal after a short delay (or based on a callback)
+      setTimeout(() => {
+        modal.show();
+      }, 500);
+    }
+  }
+  DeleteAppointment(Id: any) {
+    this.cusService.confirmDelete().then((result) => {
+      if (result.isConfirmed) {
+        const modalElement = this.addAppointmentModal?.nativeElement;
+        if (modalElement) {
+          this.service.successDelete(Id).subscribe(() => {
+            const modal =
+              bootstrap.Modal.getInstance(modalElement) ||
+              new bootstrap.Modal(modalElement);
+            modal.hide();
+            this.calendarOptions = {
+              initialView: 'dayGridMonth',
+              plugins: [dayGridPlugin, interactionPlugin],
+              editable: true,
+              events: this.fetchEvents.bind(this), // Binding `fetchEvents` for event fetching
+              eventDrop: this.handleEventDrop.bind(this), // Handle event drop
+              eventResize: this.handleEventResize.bind(this), // Handle event resize
+              eventClick: this.handleEventClick.bind(this), // Handle event click
+            };
+          });
+        }
+      }
+    });
   }
 }

@@ -9,7 +9,7 @@
   >
 </p>
 
-<div class="row">
+<div class="row" *ngIf="addressList.length > 0">
   <div class="col-md-4" *ngFor="let address of addressList; let i = index">
     <div class="card mb-4 shadow-sm">
       <div class="card-body border">
@@ -89,7 +89,7 @@
       </div>
       <div class="modal-body">
         <form
-          #contactForm="ngForm"
+          [formGroup]="onSubmitForm"
           *ngIf="addressModalAndMsg != 'Address Details'"
           (ngSubmit)="onSubmit()"
         >
@@ -104,58 +104,168 @@
                         >Address Name</label
                       >
                       <input
+                        placeholder="Enter Address Name..."
                         type="text"
                         class="form-control"
-                        [(ngModel)]="address.addressName"
+                        formControlName="addressName"
                         name="addressName"
-                        id="addressName"
-                        required
                       />
+                      <small
+                        *ngIf="shouldShowError('addressName')"
+                        class="text-danger"
+                      >
+                        Please enter Address Name.
+                      </small>
                     </div>
                     <div class="col-6">
-                      <label for="title" class="form-label">Email</label>
+                      <label class="form-label">Email</label>
                       <input
+                        placeholder="Enter Email..."
                         type="email"
                         class="form-control"
-                        [(ngModel)]="address.email"
+                        formControlName="email"
                         name="email"
                       />
+                      <small
+                        *ngIf="
+                          shouldShowError('email') &&
+                          !onSubmitForm.controls['email'].hasError('pattern')
+                        "
+                        class="text-danger"
+                      >
+                        Please enter Email.
+                      </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.controls['email'].hasError('pattern')
+                        "
+                      >
+                        First enter 5 charactors then you can use numbers after
+                        that '&#64;', domain name then '.' and last two char.
+                      </small>
                     </div>
                   </div>
                   <div class="mb-3 row">
                     <div class="col-6">
                       <label for="phone" class="form-label">Phone</label>
                       <input
+                        placeholder="Enter Phone..."
                         type="text"
                         class="form-control"
-                        [(ngModel)]="address.phone"
+                        formControlName="phone"
                         name="phone"
+                      />
+                      <small
+                        *ngIf=" !onSubmitForm.get('phone')?.errors?.['pattern'] &&
+                      !onSubmitForm
+                        .get('phone')
+                        ?.hasError('minPhoneValue') &&
+                      !onSubmitForm
+                        .get('phone')
+                        ?.hasError('maxPhoneValue') &&
+                      shouldShowError('phone')
+                    "
+                        class="text-danger"
+                      >
+                        Please enter phone number.
+                      </small>
+                      <small
+                        *ngIf="
+                          onSubmitForm.get('phone')?.hasError('minPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Phone number must have at least 10 digits.
+                      </small>
+                      <small
+                        *ngIf="
+                          onSubmitForm.get('phone')?.hasError('maxPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Phone number cannot exceed 12.
+                      </small>
+                      <small
+                        *ngIf="onSubmitForm.get('phone')?.errors?.['pattern']"
+                        class="text-danger"
+                      >
+                        Phone number can contain only numbers, spaces, and an
+                        optional '+' sign at the start.
+                      </small>
+                      <input
+                        type="hidden"
+                        formControlName="addressId"
+                        name="addressId"
                       />
                       <input
                         type="hidden"
-                        [(ngModel)]="address.addressId"
-                        name="addressId"
+                        formControlName="customerId"
+                        name="customerId"
                       />
                     </div>
                     <div class="col-6">
                       <label for="mobile" class="form-label">Mobile</label>
                       <input
+                        placeholder="Enter Mobile..."
                         type="text"
                         class="form-control"
-                        [(ngModel)]="address.mobile"
+                        formControlName="mobile"
                         name="mobile"
                       />
+                      <small
+                        *ngIf="!onSubmitForm.get('mobile')?.errors?.['pattern'] &&
+                        !onSubmitForm
+                          .get('mobile')
+                          ?.hasError('minPhoneValue') &&
+                        !onSubmitForm
+                          .get('mobile')
+                          ?.hasError('maxPhoneValue') &&
+                        shouldShowError('mobile') 
+                      "
+                        class="text-danger"
+                      >
+                        Please enter mobile number!</small
+                      >
+                      <small
+                        *ngIf="
+                          onSubmitForm.get('mobile')?.hasError('minPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        mobile number must have at least 10 digits.
+                      </small>
+                      <small
+                        *ngIf="
+                          onSubmitForm.get('mobile')?.hasError('maxPhoneValue')
+                        "
+                        class="text-danger"
+                      >
+                        Mobile number cannot exceed 12.
+                      </small>
+                      <small
+                        *ngIf="onSubmitForm.get('mobile')?.errors?.['pattern']"
+                        class="text-danger"
+                      >
+                        Only numbers and an optional + at the start are allowed.
+                      </small>
                     </div>
                   </div>
-                  <div class="row">
+                  <div class="row mb-3">
                     <label for="address" class="form-label">Address</label>
                     <textarea
                       type="address"
                       class="form-control"
-                      [(ngModel)]="address.address"
+                      formControlName="address"
+                      placeholder="Enter Address..."
                       name="address"
-                      required
                     ></textarea>
+                    <small
+                      *ngIf="shouldShowError('address')"
+                      class="text-danger"
+                    >
+                      Please enter Address.
+                    </small>
                   </div>
                   <div class="mb-3 row">
                     <label for="internalNotes" class="form-label"
@@ -163,9 +273,16 @@
                     >
                     <textarea
                       class="form-control"
-                      [(ngModel)]="address.internalNotes"
+                      formControlName="internalNotes"
+                      placeholder="Enter Internal Notes..."
                       name="internalNotes"
-                    ></textarea>
+                    ></textarea
+                    ><small
+                      *ngIf="shouldShowError('internalNotes')"
+                      class="text-danger"
+                    >
+                      Please enter Internal Notes.
+                    </small>
                   </div>
                 </div>
               </div>

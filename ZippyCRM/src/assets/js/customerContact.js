@@ -1,5 +1,4 @@
 ﻿function AddNewContact() {
-    debugger;
     $.get('/Customer/CreateEditContact', function (data) {
         $('#modalBodycontect').html(data);
         $('#contectModal').modal('show');

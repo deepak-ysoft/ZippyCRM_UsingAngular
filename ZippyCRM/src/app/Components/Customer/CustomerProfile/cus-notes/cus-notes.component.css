@@ -5,4 +5,5 @@
 
 .modal-body {
    overflow-x: auto; /* Ensure the modal body is scrollable horizontally if needed */
+   height: auto;
 }

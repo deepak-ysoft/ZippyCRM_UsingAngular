@@ -8,8 +8,7 @@ export class Addresses {
   internalNotes: string;
   customerId: number;
 
-  constructor(
-  ) {
+  constructor() {
     this.addressId = 0;
     this.addressName = '';
     this.address = '';

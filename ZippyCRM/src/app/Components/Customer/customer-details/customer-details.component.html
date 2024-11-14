@@ -22,7 +22,7 @@
           class="card-body profile-card pt-4 d-flex flex-column align-items-center"
         >
           <img
-            src="~/img/@Model.Imagepath"
+            src="{{ customer.imagepath }}"
             style="height: 45px; width: 45px"
             class="rounded-circle"
           />
@@ -170,13 +170,24 @@
             </div>
           </div>
 
-          <div>
-            <a
-              routerLink="/customer-list"
-              class="btn btn-primary"
-              style="margin: 20px 0px 20px 0px"
-              >Back to List</a
-            >
+          <div class="row">
+            <div class="col-2">
+              <a
+                routerLink="/customer-list"
+                class="btn btn-danger"
+                style="margin: 20px 0px 20px 0px"
+                >Back to List</a
+              >
+            </div>
+            <div class="col-3">
+              <a
+                class="btn btn-info"
+                style="margin: 20px 0px 20px 0px"
+                (click)="getCustomerProfile(customer.cId)"
+              >
+                More Details
+              </a>
+            </div>
           </div>
         </div>
       </div>

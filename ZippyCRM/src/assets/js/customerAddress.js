@@ -43,7 +43,6 @@ $('#modalBody').on('submit', 'form', function (e) {
     e.preventDefault();
     var form = $(this);
     var customerId = $('#customerId').val();
-    debugger;
     $.ajax({
         url: form.attr('action'),
         type: form.attr('method'),
@@ -72,17 +71,17 @@ function DeleteAddress(addressId) {
         cancelButtonText: 'No, cancel!',
         showClass: {
             popup: `
-                                        animate__animated
-                                        animate__fadeInUp
-                                        animate__faster
-                                    `
+                    animate__animated
+                    animate__fadeInUp
+                    animate__faster
+                `
         },
         hideClass: {
             popup: `
-                                        animate__animated
-                                        animate__fadeOutDown
-                                        animate__faster
-                                    `
+                    animate__animated
+                    animate__fadeOutDown
+                    animate__faster
+                `
         }
     }).then((result) => {
         if (result.isConfirmed) {

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Customer } from '../../../Models/customer.model';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { CustomerServiceService } from '../../../Services/customerService/customer-service.service';
 
 @Component({
   selector: 'app-customer-details',
@@ -11,12 +12,23 @@ import { RouterLink } from '@angular/router';
 })
 export class CustomerDetailsComponent implements OnInit {
   customer!: Customer;
+  cusService = inject(CustomerServiceService);
+  router = inject(Router);
   ngOnInit(): void {
     const state = window.history.state;
 
     if (state && state.customer) {
-      debugger;
       this.customer = state.customer;
     }
+  }
+  getCustomerProfile(customerId: any) {
+    this.cusService.getCustomerProfile(customerId).subscribe((res: any) => {
+      this.customer = res;
+      if (res != null) {
+        this.router.navigate(['customer-profile'], {
+          state: { customer: this.customer },
+        });
+      }
+    });
   }
 }
