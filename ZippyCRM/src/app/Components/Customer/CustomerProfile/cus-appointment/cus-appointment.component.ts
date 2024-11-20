@@ -29,6 +29,7 @@ import {
 import { Appointment } from '../../../../Models/cusAppointment.model';
 import { AppointmentService } from '../../../../Services/customerService/appointment.service';
 import { CustomerServiceService } from '../../../../Services/customerService/customer-service.service';
+import Swal from 'sweetalert2';
 declare var bootstrap: any;
 
 @Component({
@@ -49,6 +50,7 @@ export class CusAppointmentComponent implements OnInit {
   addAppointmentModal!: ElementRef;
   submitted = false;
 
+  // for appointment address
   onSubmitForm: FormGroup = new FormGroup({
     appointmentId: new FormControl(),
     cId: new FormControl(),
@@ -56,14 +58,15 @@ export class CusAppointmentComponent implements OnInit {
     description: new FormControl('', [Validators.required]),
     startDate: new FormControl('', [Validators.required]),
     endDate: new FormControl('', [Validators.required]),
-  });
-
+  },
+  { validators: [this.dateRangeValidator] }
+);
   @Input() set tabChange(tabId: string) {
     if (tabId === '#profile-AppointMent') {
       this.refreshCalendar(); // Call refresh when "Appointments" tab is active
     }
   }
-
+  // refresh calender
   refreshCalendar(): void {
     if (this.calendarComponent) {
       setTimeout(() => {
@@ -91,20 +94,20 @@ export class CusAppointmentComponent implements OnInit {
   }
 
   onAdd() {
-    this.onSubmitForm.reset();
+    this.onSubmitForm.reset(); // reset form on add new
     this.modalPopupAndMsg = 'Create Appointment';
   }
 
   onSubmit() {
     this.submitted = true;
+    // Submit if valid
     if (this.onSubmitForm.valid) {
       if (this.onSubmitForm.get('appointmentId')?.value == null) {
         this.onSubmitForm.get('appointmentId')?.setValue(0);
       }
       this.onSubmitForm.get('cId')?.setValue(this.customerId);
-      this.service
-        .insertAppointment(this.onSubmitForm.value)
-        .subscribe((res: any) => {
+      this.service.insertAppointment(this.onSubmitForm.value).subscribe({
+        next: (res: any) => {
           if (res) {
             this.appointment = new Appointment();
             const modal = bootstrap.Modal.getInstance(
@@ -120,11 +123,46 @@ export class CusAppointmentComponent implements OnInit {
               eventResize: this.handleEventResize.bind(this), // Handle event resize
               eventClick: this.handleEventClick.bind(this), // Handle event click
             };
+          } else {
+            Swal.fire({
+              title: 'Error!',
+              text: 'Not Added.',
+              icon: 'error',
+              timer: 2000, // Auto close after 2000 milliseconds
+              showConfirmButton: false,
+            });
           }
-        });
+        },
+        error: (err: any) => {
+          // Handle validation errors from the server
+          if (err.status === 400) {
+            const validationErrors = err.error.errors;
+            for (const field in validationErrors) {
+              const formControl = this.onSubmitForm.get(
+                field.charAt(0).toLowerCase() + field.slice(1)
+              );
+              if (formControl) {
+                formControl.setErrors({
+                  serverError: validationErrors[field].join(' '),
+                });
+              }
+            }
+          }
+        },
+      });
     }
   }
+ // Custom validator to check startDate and endDate
+ dateRangeValidator(control: AbstractControl): { [key: string]: boolean } | null {
+  const startDate = control.get('startDate')?.value;
+  const endDate = control.get('endDate')?.value;
 
+  if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+    return { dateRangeInvalid: true }; // Return error if invalid
+  }
+  return null; // No error if valid
+}
+// server side validation show if client side validation not work  
   shouldShowError(controlName: string): boolean {
     const control = this.onSubmitForm.get(controlName);
     return (
@@ -133,8 +171,9 @@ export class CusAppointmentComponent implements OnInit {
       false
     );
   }
-  
+
   ngOnInit(): void {
+    // load all event when page load
     this.calendarOptions = {
       initialView: 'dayGridMonth',
       plugins: [dayGridPlugin, interactionPlugin],
@@ -260,6 +299,8 @@ export class CusAppointmentComponent implements OnInit {
         }
       );
   }
+
+  // edit appointment
   editAppointment(appointment: Appointment) {
     this.onSubmitForm.patchValue({
       subject: appointment.subject,
@@ -284,6 +325,7 @@ export class CusAppointmentComponent implements OnInit {
       }, 500);
     }
   }
+  // Delete appointment by id
   DeleteAppointment(Id: any) {
     this.cusService.confirmDelete().then((result) => {
       if (result.isConfirmed) {

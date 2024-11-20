@@ -9,9 +9,9 @@
 <table class="table">
   <thead class="text-center">
     <tr>
+      <th>Title</th>
       <th>Contact Name</th>
       <th>Email</th>
-      <th>Title</th>
       <th>Phone</th>
       <th>Job Position</th>
       <th>Mobile</th>
@@ -22,9 +22,9 @@
   </thead>
   <tbody class="text-center" *ngIf="ContectList.length > 0">
     <tr *ngFor="let contact of ContectList; let i = index">
+      <td>{{ contact.title }}</td>
       <td>{{ contact.contactName }}</td>
       <td>{{ contact.email }}</td>
-      <td>{{ contact.title }}</td>
       <td>{{ contact.phone }}</td>
       <td>{{ contact.jobPosition }}</td>
       <td>{{ contact.mobile }}</td>
@@ -100,12 +100,18 @@
                         <option value="Ms">Ms</option>
                         <option value="Mrs">Mrs</option>
                       </select>
-                      <div *ngIf="shouldShowError('title')" class="text-danger">
+                      <div class="text-danger">
                         <small
                           *ngIf="
-                            onSubmitForm.get('title')?.hasError('required')
+                            shouldShowError('title') &&
+                            !onSubmitForm.get('title')?.hasError('serverError')
                           "
                           >Please select title.</small
+                        ><small
+                          *ngIf="
+                            onSubmitForm.get('title')?.hasError('serverError')
+                          "
+                          >{{ onSubmitForm.get('title')?.errors?.['serverError'] }}</small
                         >
                       </div>
                     </div>
@@ -122,11 +128,24 @@
                         id="contactName"
                       />
                       <small
-                        *ngIf="shouldShowError('contactName')"
+                        *ngIf="
+                          shouldShowError('contactName') &&
+                          !onSubmitForm
+                            .get('contactName')
+                            ?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
-                        Please enter Contact Name.
-                      </small>
+                        Please enter Contact Name. </small
+                      ><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm
+                            .get('contactName')
+                            ?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('contactName')?.errors?.['serverError'] }}</small
+                      >
                     </div>
                   </div>
                   <div class="mb-3 row">
@@ -147,12 +166,21 @@
                         !onSubmitForm
                           .get('phone')
                           ?.hasError('maxPhoneValue') &&
-                        shouldShowError('phone') 
+                        shouldShowError('phone')  &&!onSubmitForm
+                            .get('phone')
+                            ?.hasError('serverError')
                       "
                         class="text-danger"
                       >
                         Please enter phone number.
                       </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('phone')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('phone')?.errors?.['serverError'] }}</small
+                      >
                       <small
                         *ngIf="
                           onSubmitForm.get('phone')?.hasError('minPhoneValue')
@@ -194,11 +222,18 @@
                           !onSubmitForm
                             .get('mobile')
                             ?.hasError('maxPhoneValue') &&
-                          shouldShowError('mobile')
+                          shouldShowError('mobile')&&!onSubmitForm.get('mobile')?.hasError('serverError')
                         "
                         class="text-danger"
                       >
                         Please enter mobile number!</small
+                      >
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('mobile')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('mobile')?.errors?.['serverError'] }}</small
                       >
                       <small
                         *ngIf="
@@ -243,12 +278,19 @@
                       <small
                         *ngIf="
                           shouldShowError('email') &&
-                          !onSubmitForm.controls['email'].hasError('pattern')
+                          !onSubmitForm.controls['email'].hasError('pattern') &&
+                          !onSubmitForm.get('email')?.hasError('serverError')
                         "
                         class="text-danger"
                       >
-                        Please enter Email.
-                      </small>
+                        Please enter Email. </small
+                      ><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('email')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('email')?.errors?.['serverError'] }}</small
+                      >
                       <small
                         class="text-danger"
                         *ngIf="
@@ -272,11 +314,25 @@
                         name="jobPosition"
                       />
                       <small
-                        *ngIf="shouldShowError('jobPosition')"
+                        *ngIf="
+                          shouldShowError('jobPosition') &&
+                          !onSubmitForm
+                            .get('jobPosition')
+                            ?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
                         Please enter job Position.
                       </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm
+                            .get('jobPosition')
+                            ?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('jobPosition')?.errors?.['serverError'] }}</small
+                      >
                     </div>
                   </div>
 
@@ -291,11 +347,25 @@
                       name="internalNotes"
                     ></textarea>
                     <small
-                      *ngIf="shouldShowError('internalNotes')"
+                      *ngIf="
+                        shouldShowError('internalNotes') &&
+                        !onSubmitForm
+                          .get('internalNotes')
+                          ?.hasError('serverError')
+                      "
                       class="text-danger"
                     >
                       Please enter Internal Notes.
                     </small>
+                    <small
+                      class="text-danger"
+                      *ngIf="
+                        onSubmitForm
+                          .get('internalNotes')
+                          ?.hasError('serverError')
+                      "
+                      >{{ onSubmitForm.get('internalNotes')?.errors?.['serverError'] }}</small
+                    >
                   </div>
                 </div>
               </div>

@@ -7,19 +7,14 @@ import { Observable } from 'rxjs';
 })
 export class AppointmentService {
   constructor(private http: HttpClient) {}
+  private readonly baseUrl = 'https://localhost:7269/api/Customer';
   getAppointment(CId: any) {
-    return this.http.get(
-      `https://localhost:7269/api/Customer/GetAppointments/${CId}`
-    );
+    return this.http.get(`${this.baseUrl}/GetAppointments/${CId}`);
   }
 
   insertAppointment(appointment: any) {
-    return this.http.post(
-      `https://localhost:7269/api/Customer/CreateEditAppointment`,
-      appointment
-    );
+    return this.http.post(`${this.baseUrl}/CreateEditAppointment`, appointment);
   }
-  private apiUrl = 'https://localhost:7269/api/Customer/UpdateAppointment';
 
   updateAppointment(
     id: string,
@@ -27,11 +22,9 @@ export class AppointmentService {
     newEnd: string
   ): Observable<any> {
     const payload = { id, newStart, newEnd };
-    return this.http.post(this.apiUrl, payload);
+    return this.http.post(`${this.baseUrl}/UpdateAppointment`, payload);
   }
   successDelete(id: number) {
-    return this.http.delete(
-      `https://localhost:7269/api/Customer/DeleteAppointment/${id}`
-    );
+    return this.http.delete(`${this.baseUrl}/DeleteAppointment/${id}`);
   }
 }

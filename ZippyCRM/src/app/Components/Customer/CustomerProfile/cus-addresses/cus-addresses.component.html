@@ -109,9 +109,22 @@
                         class="form-control"
                         formControlName="addressName"
                         name="addressName"
-                      />
+                      /><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm
+                            .get('addressName')
+                            ?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('addressName')?.errors?.['serverError'] }}</small
+                      >
                       <small
-                        *ngIf="shouldShowError('addressName')"
+                        *ngIf="
+                          shouldShowError('addressName') &&
+                          !onSubmitForm
+                            .get('addressName')
+                            ?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
                         Please enter Address Name.
@@ -125,11 +138,18 @@
                         class="form-control"
                         formControlName="email"
                         name="email"
-                      />
+                      /><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('email')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('email')?.errors?.['serverError'] }}</small
+                      >
                       <small
                         *ngIf="
                           shouldShowError('email') &&
-                          !onSubmitForm.controls['email'].hasError('pattern')
+                          !onSubmitForm.controls['email'].hasError('pattern') &&
+                          !onSubmitForm.get('email')?.hasError('serverError')
                         "
                         class="text-danger"
                       >
@@ -155,7 +175,13 @@
                         class="form-control"
                         formControlName="phone"
                         name="phone"
-                      />
+                      /><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('phone')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('phone')?.errors?.['serverError'] }}</small
+                      >
                       <small
                         *ngIf=" !onSubmitForm.get('phone')?.errors?.['pattern'] &&
                       !onSubmitForm
@@ -164,7 +190,7 @@
                       !onSubmitForm
                         .get('phone')
                         ?.hasError('maxPhoneValue') &&
-                      shouldShowError('phone')
+                      shouldShowError('phone')&&!onSubmitForm.get('phone')?.hasError('serverError')
                     "
                         class="text-danger"
                       >
@@ -212,7 +238,13 @@
                         class="form-control"
                         formControlName="mobile"
                         name="mobile"
-                      />
+                      /><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('mobile')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('mobile')?.errors?.['serverError'] }}</small
+                      >
                       <small
                         *ngIf="!onSubmitForm.get('mobile')?.errors?.['pattern'] &&
                         !onSubmitForm
@@ -221,7 +253,7 @@
                         !onSubmitForm
                           .get('mobile')
                           ?.hasError('maxPhoneValue') &&
-                        shouldShowError('mobile') 
+                        shouldShowError('mobile') &&!onSubmitForm.get('mobile')?.hasError('serverError')
                       "
                         class="text-danger"
                       >
@@ -261,11 +293,20 @@
                       name="address"
                     ></textarea>
                     <small
-                      *ngIf="shouldShowError('address')"
+                      *ngIf="
+                        shouldShowError('address') &&
+                        !onSubmitForm.get('address')?.hasError('serverError')
+                      "
                       class="text-danger"
                     >
-                      Please enter Address.
-                    </small>
+                      Please enter Address. </small
+                    ><small
+                      class="text-danger"
+                      *ngIf="
+                        onSubmitForm.get('address')?.hasError('serverError')
+                      "
+                      >{{ onSubmitForm.get('address')?.errors?.['serverError'] }}</small
+                    >
                   </div>
                   <div class="mb-3 row">
                     <label for="internalNotes" class="form-label"
@@ -278,7 +319,20 @@
                       name="internalNotes"
                     ></textarea
                     ><small
-                      *ngIf="shouldShowError('internalNotes')"
+                      class="text-danger"
+                      *ngIf="
+                        onSubmitForm
+                          .get('internalNotes')
+                          ?.hasError('serverError')
+                      "
+                      >{{ onSubmitForm.get('internalNotes')?.errors?.['serverError'] }}</small
+                    ><small
+                      *ngIf="
+                        shouldShowError('internalNotes') &&
+                        !onSubmitForm
+                          .get('internalNotes')
+                          ?.hasError('serverError')
+                      "
                       class="text-danger"
                     >
                       Please enter Internal Notes.

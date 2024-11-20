@@ -54,11 +54,20 @@
                         name="subject"
                       />
                       <small
-                        *ngIf="shouldShowError('subject')"
+                        *ngIf="
+                          shouldShowError('subject') &&
+                          !onSubmitForm.get('subject')?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
-                        Please enter Subject.
-                      </small>
+                        Please enter Subject. </small
+                      ><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('subject')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('subject')?.errors?.['serverError'] }}</small
+                      >
                     </div>
                   </div>
                   <div class="row">
@@ -74,11 +83,24 @@
                         name="discription"
                       ></textarea
                       ><small
-                        *ngIf="shouldShowError('description')"
+                        *ngIf="
+                          shouldShowError('description') &&
+                          !onSubmitForm
+                            .get('description')
+                            ?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
-                        Please enter Description.
-                      </small>
+                        Please enter Description. </small
+                      ><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm
+                            .get('description')
+                            ?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('description')?.errors?.['serverError'] }}</small
+                      >
                       <input
                         type="hidden"
                         formControlName="appointmentId"
@@ -97,11 +119,22 @@
                         formControlName="startDate"
                         name="startDate"
                       /><small
-                        *ngIf="shouldShowError('startDate')"
+                        *ngIf="
+                          shouldShowError('startDate') &&
+                          !onSubmitForm
+                            .get('startDate')
+                            ?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
-                        Please enter Start Date.
-                      </small>
+                        Please enter Start Date. </small
+                      ><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('startDate')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('startDate')?.errors?.['serverError'] }}</small
+                      >
                     </div>
                     <div class="col-6">
                       <label for="endDate" class="form-label">End Date</label>
@@ -111,11 +144,29 @@
                         formControlName="endDate"
                         name="endDate"
                       /><small
-                        *ngIf="shouldShowError('endDate')"
+                        *ngIf="
+                          shouldShowError('endDate') &&
+                          !onSubmitForm.get('endDate')?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
                         Please enter End Date.
                       </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.hasError('dateRangeInvalid') &&
+                          onSubmitForm.touched
+                        "
+                      >
+                        End date cannot be earlier than start date. </small
+                      ><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('endDate')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('endDate')?.errors?.['serverError'] }}</small
+                      >
                     </div>
                   </div>
                 </div>

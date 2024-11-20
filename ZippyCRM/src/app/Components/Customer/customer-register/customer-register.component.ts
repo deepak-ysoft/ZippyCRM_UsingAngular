@@ -39,6 +39,7 @@ export class CustomerRegisterComponent implements OnInit {
   submitted = false;
 
   constructor(private fb: FormBuilder, private route: ActivatedRoute) {
+    //For validation
     this.onSubmitForm = this.fb.group(
       {
         pan: [''],
@@ -100,7 +101,6 @@ export class CustomerRegisterComponent implements OnInit {
     return (formGroup: AbstractControl): { [key: string]: boolean } | null => {
       const pan = formGroup.get('pan')?.value;
       const gst = formGroup.get('gst')?.value;
-      debugger;
       if (pan || gst) {
         return null; // Valid if either pan or gst has a value
       }
@@ -110,6 +110,7 @@ export class CustomerRegisterComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // autometically load dropdown and fill value if user want to edit customer 
     this.titleOptions = this.convertEnumToArray(title);
     this.genderOptions = this.convertEnumToArray(gender);
     this.languageOptions = this.convertEnumToArray(language);
@@ -166,7 +167,7 @@ export class CustomerRegisterComponent implements OnInit {
       .filter((key) => isNaN(Number(key))) // filters out numeric keys
       .map((key) => ({ value: enumObj[key], text: key })); // makes it an array of {value, text}
   }
-
+// For GST and PAN 
   Individual: boolean = true;
   Commercial: boolean = false;
   getAccountType(type: any) {
@@ -178,6 +179,7 @@ export class CustomerRegisterComponent implements OnInit {
       this.Individual = true;
     }
   }
+  // If user select any image for profile
   onFileChange(event: any): void {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
@@ -245,38 +247,57 @@ export class CustomerRegisterComponent implements OnInit {
 
       console.log('Submitting FormData:', formData);
 
-      this.cusService.insertCustomer(formData).subscribe((res: any) => {
-        if (res.success) {
-          console.log('Response:', res);
-          this.router.navigateByUrl('customer-list');
-        } else if (res.message == 'emai1') {
-          Swal.fire({
-            title: 'Error!',
-            text: 'First email is already exist.',
-            icon: 'error',
-            timer: 2000, // Auto close after 2000 milliseconds
-            showConfirmButton: false,
-          });
-        } else if (res.message == 'emai2') {
-          Swal.fire({
-            title: 'Error!',
-            text: 'Second email is already exist.',
-            icon: 'error',
-            timer: 2000, // Auto close after 2000 milliseconds
-            showConfirmButton: false,
-          });
-        } else {
-          Swal.fire({
-            title: 'Error!',
-            text: 'Somthing is wrong.',
-            icon: 'error',
-            timer: 2000, // Auto close after 2000 milliseconds
-            showConfirmButton: false,
-          });
-        }
+      this.cusService.insertCustomer(formData).subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            console.log('Response:', res);
+            this.router.navigateByUrl('customer-list');
+          } else if (res.message == 'emai1') {
+            Swal.fire({
+              title: 'Error!',
+              text: 'First email is already exist.',
+              icon: 'error',
+              timer: 2000, // Auto close after 2000 milliseconds
+              showConfirmButton: false,
+            });
+          } else if (res.message == 'emai2') {
+            Swal.fire({
+              title: 'Error!',
+              text: 'Second email is already exist.',
+              icon: 'error',
+              timer: 2000, // Auto close after 2000 milliseconds
+              showConfirmButton: false,
+            });
+          } else {
+            Swal.fire({
+              title: 'Error!',
+              text: 'Somthing is wrong.',
+              icon: 'error',
+              timer: 2000, // Auto close after 2000 milliseconds
+              showConfirmButton: false,
+            });
+          }
+        },
+        error: (err: any) => {
+          // Handle validation errors from the server
+          if (err.status === 400) {
+            const validationErrors = err.error.errors;
+            for (const field in validationErrors) {
+              const formControl = this.onSubmitForm.get(
+                field.charAt(0).toLowerCase() + field.slice(1)
+              );
+              if (formControl) {
+                formControl.setErrors({
+                  serverError: validationErrors[field].join(' '),
+                });
+              }
+            }
+          }
+        },
       });
     }
   }
+
   shouldShowError(controlName: string): boolean {
     const control = this.onSubmitForm.get(controlName);
     return (
@@ -286,7 +307,7 @@ export class CustomerRegisterComponent implements OnInit {
     );
   }
 }
-
+// For phone number maximum and minimum length
 export function phoneValueRangeValidator(
   minValue: number,
   maxValue: number

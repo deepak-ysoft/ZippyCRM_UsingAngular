@@ -8,44 +8,34 @@ import { use } from 'echarts';
 })
 export class UsersService {
   constructor(private http: HttpClient) {}
+  private readonly baseUrl = `https://localhost:7269/api`;
   getUsers() {
-    return this.http.get(`https://localhost:7269/api/Account/GetUsersList`);
+    return this.http.get(`${this.baseUrl}/Account/GetUsersList`);
   }
   getJobs() {
-    return this.http.get('https://localhost:7269/api/Account/GetJobList');
+    return this.http.get(`${this.baseUrl}/Account/GetJobList`);
   }
   insertUser(user: FormData): any {
-    return this.http.post(`https://localhost:7269/api/Account/Register`, user);
+    return this.http.post(`${this.baseUrl}/Account/Register`, user);
   }
   editUser(user: FormData): any {
-    return this.http.post(`https://localhost:7269/api/Home/EditUser`, user);
+    return this.http.post(`${this.baseUrl}/Home/EditUser`, user);
   }
   login(user: any): any {
-    return this.http.post(`https://localhost:7269/api/Account/login`, user);
+    return this.http.post(`${this.baseUrl}/Account/login`, user);
   }
 
   deleteImg(userId: any) {
-    return this.http.delete(
-      `https://localhost:7269/api/Home/DeleteImage/${userId}`
-    );
+    return this.http.delete(`${this.baseUrl}/Home/DeleteImage/${userId}`);
   }
   changeUserPassword(password: FormData): any {
-    return this.http.post(
-      `https://localhost:7269/api/Home/ChangePassword`,
-      password
-    );
+    return this.http.post(`${this.baseUrl}/Home/ChangePassword`, password);
   }
 
   forgotPassword(email: any) {
-    return this.http.post(
-      `https://localhost:7269/api/Account/forgotpassword`,
-      email
-    );
+    return this.http.post(`${this.baseUrl}/Account/forgotpassword`, email);
   }
   resetPassword(password: any) {
-    return this.http.post(
-      `https://localhost:7269/api/Account/reset-password`,
-      password
-    );
+    return this.http.post(`${this.baseUrl}/Account/reset-password`, password);
   }
 }

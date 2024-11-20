@@ -24,6 +24,7 @@ export class UserResetPasswordComponent {
   userService = inject(UsersService);
   router = inject(Router);
 
+  // reset form validation
   onSubmitForm: FormGroup = new FormGroup(
     {
       email: new FormControl(),
@@ -42,24 +43,28 @@ export class UserResetPasswordComponent {
     this.onSubmitForm
       .get('email')
       ?.setValue(localStorage.getItem('userEmailForResetPassword'));
-    this.userService
-      .resetPassword(this.onSubmitForm.value)
-      .subscribe((res: any) => {
-        if (res) {
-          this.router.navigateByUrl('login');
-          localStorage.removeItem('userEmailForResetPassword');
-        } else {
-          Swal.fire({
-            title: 'Error!',
-            text: 'User not found, Please try again to forgot password.',
-            icon: 'error',
-            timer: 2000, // Auto close after 2000 milliseconds
-            showConfirmButton: false,
-          });
-        }
-      });
+    if (this.onSubmitForm.valid) {
+      this.userService
+        .resetPassword(this.onSubmitForm.value)
+        .subscribe((res: any) => {
+          if (res) {
+            this.router.navigateByUrl('login');
+            localStorage.removeItem('userEmailForResetPassword');
+          } else {
+            Swal.fire({
+              title: 'Error!',
+              text: 'User not found, Please try again to forgot password.',
+              icon: 'error',
+              timer: 2000, // Auto close after 2000 milliseconds
+              showConfirmButton: false,
+            });
+          }
+        });
+    }
   }
 }
+
+// Password compare validation
 export const passwordMatchValidator: ValidatorFn = (
   formGroup: AbstractControl
 ) => {

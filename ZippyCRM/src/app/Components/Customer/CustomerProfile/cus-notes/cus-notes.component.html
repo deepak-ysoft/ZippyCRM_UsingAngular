@@ -91,11 +91,18 @@
                       formControlName="title"
                       name="title"
                     /><small
-                      *ngIf="shouldShowError('title')"
+                      *ngIf="
+                        shouldShowError('title') &&
+                        !onSubmitForm.get('title')?.hasError('serverError')
+                      "
                       class="text-danger"
                     >
-                      Please enter Title.
-                    </small>
+                      Please enter Title. </small
+                    ><small
+                      class="text-danger"
+                      *ngIf="onSubmitForm.get('title')?.hasError('serverError')"
+                      >{{ onSubmitForm.get('title')?.errors?.['serverError'] }}</small
+                    >
                   </div>
                   <div class="row">
                     <!-- Quill Editor Container -->
@@ -115,11 +122,23 @@
 
                     <!-- Error Message for Description Validation -->
                     <small
-                      *ngIf="shouldShowError('description')"
+                      *ngIf="
+                        shouldShowError('description') &&
+                        !onSubmitForm
+                          .get('description')
+                          ?.hasError('serverError')
+                      "
                       class="text-danger"
                     >
                       Please enter Description.
                     </small>
+                    <small
+                      class="text-danger"
+                      *ngIf="
+                        onSubmitForm.get('description')?.hasError('serverError')
+                      "
+                      >{{ onSubmitForm.get('description')?.errors?.['serverError'] }}</small
+                    >
                   </div>
                 </div>
               </div>

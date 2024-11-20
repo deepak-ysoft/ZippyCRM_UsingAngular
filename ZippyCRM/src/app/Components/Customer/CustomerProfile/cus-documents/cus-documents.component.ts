@@ -37,6 +37,7 @@ export class CusDocumentsComponent implements OnInit {
   baseName = '';
   newName = '';
 
+  // For Create folder form validation
   folderForm: FormGroup = new FormGroup({
     folderName: new FormControl('', [
       Validators.required,
@@ -46,6 +47,7 @@ export class CusDocumentsComponent implements OnInit {
     ]),
   });
 
+  // for rename folder form validation
   renameForm: FormGroup = new FormGroup({
     fName: new FormControl('', [
       Validators.required,
@@ -60,10 +62,12 @@ export class CusDocumentsComponent implements OnInit {
   loadRootFolder() {
     this.getInnerFiles(''); // Fetch root folder contents
   }
+
   ngOnInit(): void {
     this.getCustomerDocuments(this.customerId);
     document.addEventListener('click', this.closeContextMenu.bind(this));
   }
+
   getCustomerDocuments(id: any) {
     this.service.getDocuments(id).subscribe((res: any) => {
       this.currentFolderContent = res;
@@ -78,6 +82,7 @@ export class CusDocumentsComponent implements OnInit {
     const extension = fileName.substring(fileName.lastIndexOf('.') + 1);
     return extension; // Ensure a valid extension is returned
   }
+
   // Function to get inner files of a folder by calling the API
   getInnerFiles(path: string) {
     this.currentPathForCreate = path;
@@ -108,6 +113,7 @@ export class CusDocumentsComponent implements OnInit {
       }
     );
   }
+
   // Function to create a folder
   createFolder(folderName: string) {
     if (this.currentPathForCreate == '') {
@@ -127,6 +133,8 @@ export class CusDocumentsComponent implements OnInit {
         }
       });
   }
+
+  // when user search any folder 
   onSearchInput(event: Event) {
     const input = (event.target as HTMLInputElement).value; // Type assertion
     if (input == '') {
@@ -201,7 +209,7 @@ export class CusDocumentsComponent implements OnInit {
         }
       );
   }
-
+// To paste any thing
   onPasteFolder(destinationFoldername: string, filePath: string) {
     this.service
       .pasteFolder(destinationFoldername, this.customerId, filePath)
@@ -217,6 +225,8 @@ export class CusDocumentsComponent implements OnInit {
         }
       );
   }
+
+  // To delete a folder
   deleteFolder(destinationFoldername: string, filePath: string) {
     this.service
       .deleteFolder(destinationFoldername, filePath)
@@ -226,6 +236,7 @@ export class CusDocumentsComponent implements OnInit {
       });
   }
 
+  // When user click to rename folder or file then fill folder name in input box
   startEditing(folder: any) {
     const { baseName: base, extension: ext } = this.splitFileName(folder.name);
     this.editFolderName = folder.name;
@@ -246,6 +257,7 @@ export class CusDocumentsComponent implements OnInit {
       extension: fileName.substring(lastDotIndex),
     };
   }
+  // When user rename a folder or file and click to save
   saveName(folder: any) {
     this.baseName = this.renameForm.get('fName')?.value;
     if (this.extension != '') {
@@ -259,14 +271,12 @@ export class CusDocumentsComponent implements OnInit {
       .pipe(
         switchMap((res: any) => {
           if (res.success) {
-            // Update local folder name after successful rename
             folder.name = this.newName;
             this.editFolderName = null;
 
-            // Refresh directory contents after renaming
+            // Ensure we handle the directory response properly
             return this.service.getDirectory(res.path);
           } else {
-            // Show error using SweetAlert if renaming failed due to duplicate folder name
             Swal.fire({
               title: 'Error!',
               text: 'Folder already exists.',
@@ -274,21 +284,20 @@ export class CusDocumentsComponent implements OnInit {
               timer: 2000,
               showConfirmButton: false,
             });
-            // Complete the observable with EMPTY, avoiding further processing
             return EMPTY;
           }
         })
       )
       .subscribe({
-        next: (res) => {
-          // Only called if renaming succeeded
-          const updatedFolderPath = res.toString();
+        next: (res: string) => {
+          console.log('Directory retrieval successful:', res);
+          const updatedFolderPath = res; // No need to parse if it's plain text
           if (updatedFolderPath) {
+            console.log('Calling getInnerFiles with path:', updatedFolderPath);
             this.getInnerFiles(updatedFolderPath);
           }
         },
         error: (error: HttpErrorResponse) => {
-          // Handle any other HTTP errors, like 409 Conflict, using SweetAlert
           if (error.status === 409) {
             Swal.fire({
               title: 'Error!',
@@ -310,6 +319,7 @@ export class CusDocumentsComponent implements OnInit {
   isContextMenuVisible = false;
   contextMenuPosition = { top: '0px', left: '0px' };
 
+// When user right click on mouse then open a model popup for copy, move, paste etc.
   openContextMenu(event: MouseEvent, folder: any) {
     event.preventDefault(); // Prevent the default context menu
     this.selectedFolder = folder; // Set the selected folder
@@ -328,6 +338,7 @@ export class CusDocumentsComponent implements OnInit {
     this.selectedFolder = null; // Clear the selected folder
   }
 }
+// validation for rename and create folder '.(dot) not allowed. 
 export function noDotValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (control.value && control.value.includes('.')) {

@@ -25,6 +25,7 @@ import { isPlatformBrowser } from '@angular/common';
 import Quill from 'quill';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CustomerServiceService } from '../../../../Services/customerService/customer-service.service';
+import Swal from 'sweetalert2';
 declare var bootstrap: any;
 
 @Component({
@@ -54,6 +55,7 @@ export class CusNotesComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.notes = new CustomerNotes();
+    // Notes form validation
     this.onSubmitForm = new FormGroup({
       notesId: new FormControl(),
       title: new FormControl('', [Validators.required]),
@@ -64,9 +66,11 @@ export class CusNotesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    //Load list on page load
     this.getNotesList(this.customerId);
     this.onSubmitForm.get('customerId')?.setValue(this.customerId);
   }
+
   getNotesList(id: any) {
     this.service.getNotes(id).subscribe((res: any) => {
       this.notesList = res;
@@ -148,20 +152,47 @@ export class CusNotesComponent implements OnInit {
       }
       this.onSubmitForm.get('customerId')?.setValue(this.customerId);
       // Proceed with the API call
-      this.service.inserNotes(this.onSubmitForm.value).subscribe((res: any) => {
-        if (res) {
-          this.notes = new CustomerNotes();
-          this.clearForm();
-          const modal = bootstrap.Modal.getInstance(
-            this.addNotesModal.nativeElement
-          );
-          modal.hide();
-          this.getNotesList(this.customerId);
-        }
+      this.service.inserNotes(this.onSubmitForm.value).subscribe({
+        next: (res: any) => {
+          if (res) {
+            this.notes = new CustomerNotes();
+            this.clearForm();
+            const modal = bootstrap.Modal.getInstance(
+              this.addNotesModal.nativeElement
+            );
+            modal.hide();
+            this.getNotesList(this.customerId);
+          } else {
+            Swal.fire({
+              title: 'Error!',
+              text: 'Not Added.',
+              icon: 'error',
+              timer: 2000, // Auto close after 2000 milliseconds
+              showConfirmButton: false,
+            });
+          }
+        },
+        error: (err: any) => {
+          // Handle validation errors from the server
+          if (err.status === 400) {
+            const validationErrors = err.error.errors;
+            for (const field in validationErrors) {
+              const formControl = this.onSubmitForm.get(
+                field.charAt(0).toLowerCase() + field.slice(1)
+              );
+              if (formControl) {
+                formControl.setErrors({
+                  serverError: validationErrors[field].join(' '),
+                });
+              }
+            }
+          }
+        },
       });
     }
   }
 
+  // server side validation when invalid field
   shouldShowError(controlName: string): boolean {
     const control = this.onSubmitForm.get(controlName);
     return (
@@ -170,7 +201,7 @@ export class CusNotesComponent implements OnInit {
       false
     );
   }
-  
+
   notesDescription!: SafeHtml;
   notesDetails(notes: CustomerNotes) {
     this.notes = notes;
@@ -178,12 +209,15 @@ export class CusNotesComponent implements OnInit {
       this.notes.description
     );
   }
+
+  // Cleare submit form and quill
   clearForm() {
     this.onSubmitForm.reset();
     if (this.quill) {
       this.quill.root.innerHTML = ''; // Clear editor content
     }
   }
+
   DeleteNotes(id: number) {
     this.cusService.confirmDelete().then((result) => {
       if (result.isConfirmed) {

@@ -13,18 +13,9 @@ import { CustomerProfileComponent } from './Components/Customer/CustomerProfile/
 import { CusContactComponent } from './Components/Customer/CustomerProfile/cus-contact/cus-contact.component';
 import { CustomerDetailsComponent } from './Components/Customer/customer-details/customer-details.component';
 import { authGuard } from './Services/auth.guard';
+import { ContactUsComponent } from './Components/contact-us/contact-us.component';
 
 export const routes: Routes = [
-  //defualt route
-  {
-    path: '',
-    redirectTo: 'login',
-    pathMatch: 'full',
-  },
-  {
-    path: 'login',
-    component: LoginComponent,
-  },
   {
     path: 'user-forgot-password',
     component: UserForgotPasswordComponent,
@@ -42,9 +33,13 @@ export const routes: Routes = [
     component: LayoutComponent,
     children: [
       {
+        path: '',
+        redirectTo: 'index', // Redirect '' within LayoutComponent to 'index'
+        pathMatch: 'full',
+      },
+      {
         path: 'index',
         component: IndexComponent,
-        canActivate: [authGuard],
       },
       {
         path: 'user-profile',
@@ -81,6 +76,19 @@ export const routes: Routes = [
         component: CusContactComponent,
         canActivate: [authGuard],
       },
+      {
+        path: 'contact-us',
+        component: ContactUsComponent,
+      },
     ],
+  }, //defualt route
+  {
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full',
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
   },
 ];

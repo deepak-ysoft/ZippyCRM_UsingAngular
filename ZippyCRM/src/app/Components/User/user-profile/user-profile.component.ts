@@ -16,6 +16,7 @@ import {
   ValidatorFn,
 } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { delay } from 'rxjs';
 @Component({
   selector: 'app-user-profile',
   standalone: true,
@@ -25,7 +26,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 })
 export class UserProfileComponent implements OnInit {
   loggedUser: any; // Change to the appropriate type based on your data structure
-  selectedFile: any = null;
+  selectedFile: File | null = null; // Stores the file object
+  imagePreview: string | null = null; // Stores the image preview URL
   cusService = inject(CustomerServiceService);
   http = inject(HttpClient);
   router = inject(Router);
@@ -33,10 +35,12 @@ export class UserProfileComponent implements OnInit {
   jobsOptions: Array<{ value: number; text: string }> = [];
   passwordForm: FormGroup;
   onSubmitForm: FormGroup;
+  submitted = false;
 
   constructor(private service: UsersService, private fb: FormBuilder) {
     this.loadUserData();
 
+    // Edit user form validation
     this.onSubmitForm = this.fb.group({
       discription: ['', Validators.required],
       phone: [
@@ -64,7 +68,7 @@ export class UserProfileComponent implements OnInit {
           Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z.-]+\.[a-zA-Z]{2,}$/),
         ],
       ],
-      photo: [null], // Add this line
+      photo: [null],
     });
 
     this.passwordForm = this.fb.group(
@@ -84,7 +88,7 @@ export class UserProfileComponent implements OnInit {
       { validator: passwordMatchValidator() } // Apply the custom validator here
     );
   }
-
+  // compare password validation
   passwordMatchValidator(formGroup: FormGroup) {
     return formGroup.get('newPassword')?.value ===
       formGroup.get('confirmPassword')?.value
@@ -100,6 +104,7 @@ export class UserProfileComponent implements OnInit {
         value: job.jobId,
         text: job.jobName,
       }));
+      // Fill user value in fields on page load
       this.onSubmitForm.patchValue({
         username: this.loggedUser.user.username,
         email: this.loggedUser.user.email,
@@ -113,6 +118,7 @@ export class UserProfileComponent implements OnInit {
       });
     });
   }
+
   loadUserData(): void {
     const userData = localStorage.getItem('loginUser');
     if (userData) {
@@ -122,30 +128,24 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
-  onFileChange(event: any) {
-    if (event.target.files.length > 0) {
-      this.selectedFile = event.target.files[0];
+  // if user select image for profile
+  // Handle file selection and generate image preview
+  onFileChange(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      const reader = new FileReader();
+
+      // Read the file as a data URL (base64 string)
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        this.imagePreview = reader.result as string; // Set the image preview URL
+      };
     }
   }
-
-  deleteUserImage(id: number) {
-    this.cusService.confirmDelete().then((result) => {
-      if (result.isConfirmed) {
-        this.service.deleteImg(id).subscribe((res: any) => {
-          if (!res) {
-            Swal.fire({
-              title: 'Error!',
-              text: 'Somthing is wrong.',
-              icon: 'error',
-              timer: 2000, // Auto close after 500 milliseconds
-              showConfirmButton: false,
-            });
-          }
-        });
-      }
-    });
-  }
   onSubmit() {
+    this.submitted = true;
+    // if form data is valid
     if (!this.onSubmitForm.invalid) {
       const formData = new FormData();
       // Append other user information from form controls
@@ -166,7 +166,8 @@ export class UserProfileComponent implements OnInit {
       );
       formData.append('jobId', this.onSubmitForm.get('jobId')?.value || '');
       formData.append('email', this.onSubmitForm.get('email')?.value || '');
-      formData.append('password', this.loggedUser.user.password || ''); // If password is unchanged
+      formData.append('password', localStorage.getItem('loginPassword') || '');
+      formData.append('cPassword', localStorage.getItem('loginPassword') || '');
 
       // Handle file upload if a new file is selected
       if (this.selectedFile) {
@@ -174,8 +175,8 @@ export class UserProfileComponent implements OnInit {
         this.submitFormData(formData);
       } else {
         const baseUrl = 'https://localhost:7269/uploads/images/users/';
-        const imagePath = this.loggedUser.user.imagePath.replace(baseUrl, '');
-
+        let imagePath = '';
+        imagePath = this.loggedUser.user.imagePath.replace(baseUrl, '');
         this.http
           .get(this.loggedUser.user.imagePath, { responseType: 'blob' })
           .subscribe({
@@ -193,27 +194,59 @@ export class UserProfileComponent implements OnInit {
 
   // Separate function to submit form data
   submitFormData(formData: FormData) {
-    formData.forEach((value, key) => {
-      console.log(key, value);
-    });
-
-    this.service.editUser(formData).subscribe((res: any) => {
-      // Show the SweetAlert notification
-      Swal.fire({
-        title: 'Done!',
-        text: 'User Updated successfully.',
-        icon: 'success',
-        timer: 2000,
-        showConfirmButton: false,
-      }).then(() => {
-        // Navigate to the login page after the alert is closed
-        localStorage.removeItem('loginUser');
-        localStorage.setItem('loginUser', JSON.stringify(res));
-        this.router.navigateByUrl('user-profile');
-      });
+    this.service.editUser(formData).subscribe({
+      next: (res: any) => {
+        // Show the SweetAlert notification
+        if (res.success) {
+          Swal.fire({
+            title: 'Done!',
+            text: "You have updated the user's data. You will have to login again..",
+            icon: 'success',
+            timer: 3000,
+            showConfirmButton: false,
+          }).then(() => {
+            localStorage.clear();
+            this.router.navigateByUrl('/login');
+          });
+        } else if (!res.success && res.message == 'Password Not Match') {
+          Swal.fire({
+            title: 'Error!',
+            text: 'Wrong Password.',
+            icon: 'error',
+            timer: 1000,
+            showConfirmButton: false,
+          });
+        }
+      },
+      error: (err: any) => {
+        // Handle validation errors from the server
+        if (err.status === 400) {
+          const validationErrors = err.error.errors;
+          for (const field in validationErrors) {
+            const formControl = this.onSubmitForm.get(
+              field.charAt(0).toLowerCase() + field.slice(1)
+            );
+            if (formControl) {
+              formControl.setErrors({
+                serverError: validationErrors[field].join(' '),
+              });
+            }
+          }
+        }
+      },
     });
   }
+  // show server side error if client-side not working
+  shouldShowError(controlName: string): boolean {
+    const control = this.onSubmitForm.get(controlName);
+    return (
+      (control?.invalid &&
+        (control.touched || control.dirty || this.submitted)) ??
+      false
+    );
+  }
   onPasswordSubmit() {
+    // if change password is valid
     if (this.passwordForm.valid) {
       const formData = new FormData();
 
@@ -258,6 +291,8 @@ export class UserProfileComponent implements OnInit {
     }
   }
 }
+
+// Password compare validation
 export function passwordMatchValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const newPassword = control.get('newPassword')?.value;
@@ -266,6 +301,8 @@ export function passwordMatchValidator(): ValidatorFn {
     return newPassword === confirmPassword ? null : { mismatch: true };
   };
 }
+
+// phone number validation
 export function phoneValueRangeValidator(
   minValue: number,
   maxValue: number

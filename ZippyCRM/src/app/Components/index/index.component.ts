@@ -29,6 +29,7 @@ export type ChartOptions = {
   templateUrl: './index.component.html',
   styleUrl: './index.component.css',
 })
+//ApexChart and eChart
 export class IndexComponent implements OnInit, AfterViewInit {
   public chartOptions: any;
   ngOnInit(): void {

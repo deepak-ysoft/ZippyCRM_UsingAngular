@@ -37,6 +37,7 @@ export class UserRegisterComponent implements OnInit {
     this.user = new Users();
     this.loadUserData();
 
+    // for user register validation
     this.onSubmitForm = this.fb.group(
       {
         discription: ['', Validators.required],
@@ -93,6 +94,7 @@ export class UserRegisterComponent implements OnInit {
       }));
     });
   }
+
   loadUserData(): void {
     const userData = localStorage.getItem('loginUser');
     if (userData) {
@@ -101,6 +103,8 @@ export class UserRegisterComponent implements OnInit {
       this.loggedUser = null; // Handle the case where there is no user data
     }
   }
+
+  // when user click on change password
   onFileChange(event: any): void {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
@@ -111,12 +115,10 @@ export class UserRegisterComponent implements OnInit {
 
   onSave() {
     this.submitted = true;
+    // if form is not invalid
     if (!this.onSubmitForm.invalid) {
       const formData = new FormData();
       // Append other user information from form controls
-      if (this.loggedUser.user.userId) {
-        formData.append('userId', this.loggedUser.user.userId.toString());
-      }
       formData.append(
         'username',
         this.onSubmitForm.get('username')?.value || ''
@@ -125,8 +127,17 @@ export class UserRegisterComponent implements OnInit {
       formData.append('country', this.onSubmitForm.get('country')?.value || '');
       formData.append('address', this.onSubmitForm.get('address')?.value || '');
       formData.append('phone', this.onSubmitForm.get('phone')?.value || '');
-      const photoValue = this.onSubmitForm.get('photo')?.value;
-      formData.append('photo', photoValue ? photoValue : 'Default.jpg');
+      if (this.selectedFile) {
+        // Append the selected file
+        formData.append('photo', this.selectedFile, this.selectedFile.name);
+      } else {
+        // Create a File object for "Default.jpg"
+        const defaultFile = new File([''], 'Default.jpg', {
+          type: 'image/jpeg',
+          lastModified: Date.now(),
+        });
+        formData.append('photo', defaultFile);
+      }
       formData.append(
         'discription',
         this.onSubmitForm.get('discription')?.value || ''
@@ -136,34 +147,66 @@ export class UserRegisterComponent implements OnInit {
       formData.append(
         'password',
         this.onSubmitForm.get('password')?.value || ''
-      ); // If password is unchanged
-
-      // Handle file upload if a new file is selected
-      if (this.selectedFile) {
-        formData.append('photo', this.selectedFile, this.selectedFile.name);
-      }
-      this.service.insertUser(formData).subscribe((res: any) => {
-        if (res) {
-          Swal.fire({
-            title: 'Done!',
-            text: 'Register user successfully.',
-            icon: 'success',
-            timer: 2000, // Auto close after 500 milliseconds
-            showConfirmButton: false,
-          });
-          this.router.navigateByUrl('login');
-        } else {
-          Swal.fire({
-            title: 'Error!',
-            text: 'Email is already exist.',
-            icon: 'error',
-            timer: 2000, // Auto close after 2000 milliseconds
-            showConfirmButton: false,
-          });
-        }
+      );
+      formData.append(
+        'cPassword',
+        this.onSubmitForm.get('cPassword')?.value || ''
+      );
+      const formDataObject: { [key: string]: any } = {};
+      formData.forEach((value, key) => {
+        formDataObject[key] = value;
+      });
+      console.log(formDataObject);
+      // // Handle file upload if a new file is selected
+      // if (this.selectedFile) {
+      //   formData.append('photo', this.selectedFile, this.selectedFile.name);
+      // } else {
+      //   formData.append('photo', 'Default.jpg');
+      // }
+      this.service.insertUser(formData).subscribe({
+        next: (res: any) => {
+          // Check if the response indicates success or failure
+          if (res.success) {
+            Swal.fire({
+              title: 'Done!',
+              text: 'Register user successfully.',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false,
+            });
+            this.router.navigateByUrl('login'); // Navigate to a login or dashboard page
+          } else {
+            // If the response is false or indicates failure (like email already exists)
+            Swal.fire({
+              title: 'Error!',
+              text: 'Email is already exist.',
+              icon: 'error',
+              timer: 2000,
+              showConfirmButton: false,
+            });
+          }
+        },
+        error: (err: any) => {
+          // Handle validation errors from the server
+          if (err.status === 400) {
+            const validationErrors = err.error.errors;
+            for (const field in validationErrors) {
+              const formControl = this.onSubmitForm.get(
+                field.charAt(0).toLowerCase() + field.slice(1)
+              );
+              if (formControl) {
+                formControl.setErrors({
+                  serverError: validationErrors[field].join(' '),
+                });
+              }
+            }
+          }
+        },
       });
     }
   }
+
+  // show server side error if client-side not working
   shouldShowError(controlName: string): boolean {
     const control = this.onSubmitForm.get(controlName);
     return (
@@ -173,6 +216,8 @@ export class UserRegisterComponent implements OnInit {
     );
   }
 }
+
+// copmare password validation
 export function passwordMatchValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const password = control.get('password')?.value;
@@ -181,6 +226,8 @@ export function passwordMatchValidator(): ValidatorFn {
     return password === cPassword ? null : { mismatch: true };
   };
 }
+
+// Phone number validation
 export function phoneValueRangeValidator(
   minValue: number,
   maxValue: number

@@ -4,10 +4,8 @@ import { Customer } from '../../../Models/customer.model';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { CustomerProfileComponent } from '../CustomerProfile/customer-profile/customer-profile.component';
 import { CustomerServiceService } from '../../../Services/customerService/customer-service.service';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { CustomerRegisterComponent } from '../customer-register/customer-register.component';
 
 @Component({
   selector: 'app-customer-list',
@@ -16,8 +14,6 @@ import { CustomerRegisterComponent } from '../customer-register/customer-registe
     RouterLink,
     FormsModule,
     CommonModule,
-    CustomerProfileComponent,
-    CustomerRegisterComponent,
     NgxDatatableModule,
   ],
   templateUrl: './customer-list.component.html',
@@ -46,7 +42,7 @@ export class CustomerListComponent implements OnInit {
       page: this.currentPage.toString(),
       pageSize: this.pageSize.toString(),
       searchTerm: this.searchTerm,
-    };
+    }; // Get customer parameter
 
     this.http
       .get<any>('https://localhost:7269/api/Customer/GetCustomers', { params })
@@ -57,6 +53,7 @@ export class CustomerListComponent implements OnInit {
       });
   }
 
+  // Get customer list loaded page and display
   getDisplayedPages(): number[] {
     const pages = [];
 
@@ -116,6 +113,7 @@ export class CustomerListComponent implements OnInit {
   ) {
     this.customer = new Customer(); // Initialize with a new instance of Customer
   }
+  
   getCustomerProfile(customerId: any) {
     this.cusService.getCustomerProfile(customerId).subscribe((res: any) => {
       this.customer = res;

@@ -106,10 +106,17 @@
                           {{ option.text }}
                         </option>
                       </select>
-                      <div *ngIf="shouldShowError('title')" class="text-danger">
+                      <div class="text-danger">
                         <small
                           *ngIf="
-                            onSubmitForm.get('title')?.hasError('required')
+                            onSubmitForm.get('title')?.hasError('serverError')
+                          "
+                          >{{ onSubmitForm.get('title')?.errors?.['serverError'] }}</small
+                        >
+                        <small
+                          *ngIf="
+                            shouldShowError('title') &&
+                            !onSubmitForm.get('title')?.hasError('serverError')
                           "
                           >Please select title.</small
                         >
@@ -130,12 +137,22 @@
                           shouldShowError('firstName') &&
                           !onSubmitForm.controls['firstName'].hasError(
                             'pattern'
-                          )
+                          ) &&
+                          !onSubmitForm
+                            .get('firstName')
+                            ?.hasError('serverError')
                         "
                         class="text-danger"
                       >
                         Please enter First Name.
                       </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('firstName')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('firstName')?.errors?.['serverError'] }}</small
+                      >
                       <small
                         class="text-danger"
                         *ngIf="
@@ -178,7 +195,16 @@
                         formControlName="lastName"
                         class="form-control"
                       /><small
-                        *ngIf="shouldShowError('lastName')"
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('lastName')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('lastName')?.errors?.['serverError'] }}</small
+                      ><small
+                        *ngIf="
+                          shouldShowError('lastName') &&
+                          !onSubmitForm.get('lastName')?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
                         Please enter Last Name.
@@ -204,13 +230,18 @@
                           {{ option.text }}
                         </option>
                       </select>
-                      <div
-                        *ngIf="shouldShowError('gender')"
-                        class="text-danger"
-                      >
+                      <div class="text-danger">
+                        <small
+                          class="text-danger"
+                          *ngIf="
+                            onSubmitForm.get('gender')?.hasError('serverError')
+                          "
+                          >{{ onSubmitForm.get('gender')?.errors?.['serverError'] }}</small
+                        >
                         <small
                           *ngIf="
-                            onSubmitForm.get('gender')?.hasError('required')
+                            shouldShowError('gender') &&
+                            !onSubmitForm.get('gender')?.hasError('serverError')
                           "
                           >Please select your gender.</small
                         >
@@ -226,11 +257,21 @@
                         formControlName="position"
                         class="form-control"
                       /><small
-                        *ngIf="shouldShowError('position')"
+                        *ngIf="
+                          shouldShowError('position') &&
+                          !onSubmitForm.get('position')?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
                         Please enter Position.
                       </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('position')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('position')?.errors?.['serverError'] }}</small
+                      >
                     </div>
                   </div>
                 </div>
@@ -254,15 +295,23 @@
                           {{ option.text }}
                         </option>
                       </select>
-                      <div
-                        *ngIf="shouldShowError('language')"
-                        class="text-danger"
-                      >
+                      <div class="text-danger">
                         <small
                           *ngIf="
-                            onSubmitForm.get('language')?.hasError('required')
+                            shouldShowError('language') &&
+                            !onSubmitForm
+                              .get('language')
+                              ?.hasError('serverError')
                           "
                           >Please select your language.</small
+                        >
+                        <small
+                          *ngIf="
+                            onSubmitForm
+                              .get('language')
+                              ?.hasError('serverError')
+                          "
+                          >{{ onSubmitForm.get('language')?.errors?.['serverError'] }}</small
                         >
                       </div>
                     </div>
@@ -275,8 +324,22 @@
                         name="dayOfBirth"
                         formControlName="dayOfBirth"
                         class="form-control"
-                      /><small
-                        *ngIf="shouldShowError('dayOfBirth')"
+                      />
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm
+                            .get('dayOfBirth')
+                            ?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('dayOfBirth')?.errors?.['serverError'] }}</small
+                      ><small
+                        *ngIf="
+                          shouldShowError('dayOfBirth') &&
+                          !onSubmitForm
+                            .get('dayOfBirth')
+                            ?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
                         Please enter your Day Of Birth.
@@ -301,11 +364,21 @@
                           !onSubmitForm
                             .get('phone')
                             ?.hasError('minPhoneValue') &&
-                          !onSubmitForm.get('phone')?.hasError('maxPhoneValue')
+                          !onSubmitForm
+                            .get('phone')
+                            ?.hasError('maxPhoneValue') &&
+                          !onSubmitForm.get('phone')?.hasError('serverError')
                         "
                         class="text-danger"
                       >
                         Please enter phone number!</small
+                      >
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('phone')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('phone')?.errors?.['serverError'] }}</small
                       >
                       <small
                         *ngIf="
@@ -343,11 +416,23 @@
                             ?.hasError('minPhoneValue') &&
                           !onSubmitForm
                             .get('phoneOther')
-                            ?.hasError('maxPhoneValue')
+                            ?.hasError('maxPhoneValue') &&
+                          !onSubmitForm
+                            .get('phoneOther')
+                            ?.hasError('serverError')
                         "
                         class="text-danger"
                       >
                         Please enter second phone number!</small
+                      >
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm
+                            .get('phoneOther')
+                            ?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('phoneOther')?.errors?.['serverError'] }}</small
                       >
                       <small
                         *ngIf="
@@ -383,11 +468,21 @@
                         type="number"
                         class="form-control"
                       /><small
-                        *ngIf="shouldShowError('cell')"
+                        *ngIf="
+                          shouldShowError('cell') &&
+                          !onSubmitForm.get('cell')?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
                         Please enter Cell Number.
                       </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('cell')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('cell')?.errors?.['serverError'] }}</small
+                      >
                     </div>
                   </div>
                   <div class="col-6">
@@ -400,11 +495,19 @@
                         type="number"
                         class="form-control"
                       /><small
-                        *ngIf="shouldShowError('fax')"
+                        *ngIf="
+                          shouldShowError('fax') &&
+                          !onSubmitForm.get('fax')?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
                         Please enter Fax Number.
                       </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="onSubmitForm.get('fax')?.hasError('serverError')"
+                        >{{ onSubmitForm.get('fax')?.errors?.['serverError'] }}</small
+                      >
                     </div>
                   </div>
                 </div>
@@ -420,12 +523,20 @@
                       /><small
                         *ngIf="
                           shouldShowError('email') &&
-                          !onSubmitForm.controls['email'].hasError('pattern')
+                          !onSubmitForm.controls['email'].hasError('pattern') &&
+                          !onSubmitForm.get('email')?.hasError('serverError')
                         "
                         class="text-danger"
                       >
                         Please enter Email.
                       </small>
+                      <small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('email')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('email')?.errors?.['serverError'] }}</small
+                      >
                       <small
                         class="text-danger"
                         *ngIf="
@@ -448,11 +559,20 @@
                       /><small
                         *ngIf="
                           shouldShowError('email2') &&
-                          !onSubmitForm.controls['email2'].hasError('pattern')
+                          !onSubmitForm.controls['email2'].hasError(
+                            'pattern'
+                          ) &&
+                          !onSubmitForm.get('email2')?.hasError('serverError')
                         "
                         class="text-danger"
                       >
                         Please enter Second Email. </small
+                      ><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('email2')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('email2')?.errors?.['serverError'] }}</small
                       ><small
                         class="text-danger"
                         *ngIf="
@@ -479,11 +599,20 @@
                         formControlName="website"
                         class="form-control"
                       /><small
-                        *ngIf="shouldShowError('website')"
+                        *ngIf="
+                          shouldShowError('website') &&
+                          !onSubmitForm.get('website')?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
-                        Please enter Website Name.
-                      </small>
+                        Please enter Website Name. </small
+                      ><small
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('website')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('website')?.errors?.['serverError'] }}</small
+                      >
                     </div>
                   </div>
                   <div class="col-6">
@@ -509,7 +638,16 @@
                         class="form-control"
                       ></textarea
                       ><small
-                        *ngIf="shouldShowError('comments')"
+                        class="text-danger"
+                        *ngIf="
+                          onSubmitForm.get('comments')?.hasError('serverError')
+                        "
+                        >{{ onSubmitForm.get('comments')?.errors?.['serverError'] }}</small
+                      ><small
+                        *ngIf="
+                          shouldShowError('comments') &&
+                          !onSubmitForm.get('comments')?.hasError('serverError')
+                        "
                         class="text-danger"
                       >
                         Please enter Comments.

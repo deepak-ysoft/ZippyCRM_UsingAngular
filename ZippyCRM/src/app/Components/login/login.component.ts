@@ -23,19 +23,23 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {}
   constructor() {
     this.login = new UserLogin();
+    //remove localstorage data on load page
     localStorage.removeItem('userEmailForResetPassword');
   }
+
   loggedUser: any;
+  // To login user
   onLogin(login: UserLogin) {
     this.service.login(login).subscribe((res: any) => {
       if (res) {
         this.tokenSubject.next(res.Token);
 
-        localStorage.removeItem('loginUser');
+        localStorage.clear();
         localStorage.setItem('loginUser', JSON.stringify(res));
+        localStorage.setItem('loginPassword', login.password);
 
         localStorage.setItem('jwtToken', res.token);
-        this.router.navigateByUrl('index');
+        this.router.navigateByUrl('index'); // navigate user on index page
       } else {
         Swal.fire({
           title: 'Error!',

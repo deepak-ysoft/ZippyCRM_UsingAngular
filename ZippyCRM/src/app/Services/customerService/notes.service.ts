@@ -6,19 +6,15 @@ import { Injectable } from '@angular/core';
 })
 export class NotesService {
   constructor(private http: HttpClient) {}
+  private readonly baseUrl = `https://localhost:7269/api/Customer`;
   getNotes(CId: any) {
-    return this.http.get(`https://localhost:7269/api/Customer/GetNotes/${CId}`);
+    return this.http.get(`${this.baseUrl}/GetNotes/${CId}`);
   }
 
   inserNotes(notes: any) {
-    return this.http.post(
-      `https://localhost:7269/api/Customer/CreateEditNotes`,
-      notes
-    );
+    return this.http.post(`${this.baseUrl}/CreateEditNotes`, notes);
   }
   succesDelete(id: number) {
-    return this.http.delete(
-      `https://localhost:7269/api/Customer/DeleteNotes/${id}`
-    );
+    return this.http.delete(`${this.baseUrl}/DeleteNotes/${id}`);
   }
 }

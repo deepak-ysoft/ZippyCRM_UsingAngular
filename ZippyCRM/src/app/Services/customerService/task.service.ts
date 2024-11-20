@@ -6,20 +6,19 @@ import { Injectable } from '@angular/core';
 })
 export class TaskService {
   constructor(private http: HttpClient) {}
+  private readonly baseUrl = `https://localhost:7269/api/Customer`;
   getTask(CId: any) {
-    return this.http.get(`https://localhost:7269/api/Customer/GetTasks/${CId}`);
+    return this.http.get(`${this.baseUrl}/GetTasks/${CId}`);
   }
 
   insertTask(task: any) {
     return this.http.post(
-      `https://localhost:7269/api/Customer/CreateEditTask
+      `${this.baseUrl}/CreateEditTask
 `,
       task
     );
   }
   succesDelete(id: number) {
-    return this.http.delete(
-      `https://localhost:7269/api/Customer/DeleteTask/${id}`
-    );
+    return this.http.delete(`${this.baseUrl}/DeleteTask/${id}`);
   }
 }

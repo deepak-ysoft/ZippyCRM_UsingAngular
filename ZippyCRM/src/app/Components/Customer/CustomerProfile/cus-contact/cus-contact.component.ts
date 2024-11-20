@@ -43,6 +43,7 @@ export class CusContactComponent implements OnInit {
   contact: Contact;
   submitted = false;
 
+  // For form validation
   onSubmitForm: FormGroup = new FormGroup({
     cId: new FormControl(),
     contactId: new FormControl(),
@@ -92,9 +93,11 @@ export class CusContactComponent implements OnInit {
     this.onSubmitForm.reset();
     this.onSubmitForm.reset({ title: '' });
     this.modalPopupAndMsg = 'Create Contact';
+    this.submitted = false;
   }
 
   EditContact(contact: Contact) {
+    //set contact value in form fields
     this.onSubmitForm.patchValue({
       cId: contact.cId,
       contactId: contact.contactId,
@@ -111,14 +114,14 @@ export class CusContactComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
+    if (this.onSubmitForm.get('contactId')?.value == null) {
+      this.onSubmitForm.get('contactId')?.setValue(0);
+    }
+    this.onSubmitForm.get('cId')?.setValue(this.customerId);
+    // submit if form is valid
     if (this.onSubmitForm.valid) {
-      if (this.onSubmitForm.get('contactId')?.value == null) {
-        this.onSubmitForm.get('contactId')?.setValue(0);
-      }
-      this.onSubmitForm.get('cId')?.setValue(this.customerId);
-      this.service
-        .inserContact(this.onSubmitForm.value)
-        .subscribe((res: any) => {
+      this.service.inserContact(this.onSubmitForm.value).subscribe({
+        next: (res: any) => {
           if (res) {
             this.contact = new Contact();
             const modal = bootstrap.Modal.getInstance(
@@ -135,10 +138,28 @@ export class CusContactComponent implements OnInit {
               showConfirmButton: false,
             });
           }
-        });
+        },
+        error: (err: any) => {
+          // Handle validation errors from the server
+          if (err.status === 400) {
+            const validationErrors = err.error.errors;
+            for (const field in validationErrors) {
+              const formControl = this.onSubmitForm.get(
+                field.charAt(0).toLowerCase() + field.slice(1)
+              );
+              if (formControl) {
+                formControl.setErrors({
+                  serverError: validationErrors[field].join(' '),
+                });
+              }
+            }
+          }
+        },
+      });
     }
   }
 
+  // Show server-side error if invalid
   shouldShowError(controlName: string): boolean {
     const control = this.onSubmitForm.get(controlName);
     return (
@@ -164,6 +185,7 @@ export class CusContactComponent implements OnInit {
   }
 }
 
+// Phone number validation
 export function phoneValueRangeValidator(
   minValue: number,
   maxValue: number

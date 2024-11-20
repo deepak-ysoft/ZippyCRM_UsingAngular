@@ -77,9 +77,6 @@ export class CustomerProfileComponent implements OnInit {
     events: this.fetchEvents.bind(this),
   };
 
-  /**
-   *
-   */
   constructor() {
     this.customer = new Customer();
   }
@@ -101,11 +98,6 @@ export class CustomerProfileComponent implements OnInit {
     //Tab active on customer profile
     this.activeTab = '#profile-Contacts';
     localStorage.setItem('activeTab', this.activeTab); // Ensure it's saved to localStorage
-
-    // const storedTab = localStorage.getItem('activeTab');
-    // if (storedTab) {
-    //   this.activeTab = storedTab;
-    // }
   }
   activateTab(tabId: string, customerId: number | undefined): void {
     this.activeTab = tabId;

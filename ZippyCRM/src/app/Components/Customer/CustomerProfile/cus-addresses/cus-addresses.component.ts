@@ -21,6 +21,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { CustomerServiceService } from '../../../../Services/customerService/customer-service.service';
+import Swal from 'sweetalert2';
+
 declare var bootstrap: any;
 @Component({
   selector: 'app-cus-addresses',
@@ -39,6 +41,7 @@ export class CusAddressesComponent implements OnInit {
   @ViewChild('addAddressModal', { static: false }) addAddressModal!: ElementRef;
   submitted = false;
 
+  // For validation
   onSubmitForm: FormGroup = new FormGroup({
     customerId: new FormControl(),
     addressId: new FormControl(),
@@ -68,10 +71,12 @@ export class CusAddressesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Load address list on page load
     this.getCustomerAddresses(this.customerId);
     this.onSubmitForm.get('customerId')?.setValue(this.customerId);
   }
 
+  // manually load list
   getCustomerAddresses(id: any) {
     this.service.getAddresses(id).subscribe((res: any) => {
       this.addressList = res;
@@ -79,11 +84,13 @@ export class CusAddressesComponent implements OnInit {
   }
 
   onAdd() {
-    this.onSubmitForm.reset();
+    this.submitted = false;
+    this.onSubmitForm.reset(); // Reset form when user click on add new
     this.addressModalAndMsg = 'Add Address';
   }
 
   EditAddress(address: Addresses) {
+    // Fill address values when user click edit address
     this.onSubmitForm.patchValue({
       addressId: address.addressId,
       addressName: address.addressName,
@@ -98,14 +105,14 @@ export class CusAddressesComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
+    // submit if user is valid
     if (this.onSubmitForm.valid) {
       if (this.onSubmitForm.get('addressId')?.value == null) {
         this.onSubmitForm.get('addressId')?.setValue(0);
       }
       this.onSubmitForm.get('customerId')?.setValue(this.customerId);
-      this.service
-        .insertAddress(this.onSubmitForm.value)
-        .subscribe((res: any) => {
+      this.service.insertAddress(this.onSubmitForm.value).subscribe({
+        next: (res: any) => {
           if (res) {
             this.address = new Addresses();
             const modal = bootstrap.Modal.getInstance(
@@ -114,12 +121,36 @@ export class CusAddressesComponent implements OnInit {
             modal.hide();
             this.getCustomerAddresses(this.customerId);
           } else {
-            alert('Not Added!');
+            Swal.fire({
+              title: 'Error!',
+              text: 'Not Added.',
+              icon: 'error',
+              timer: 2000, // Auto close after 2000 milliseconds
+              showConfirmButton: false,
+            });
           }
-        });
+        },
+        error: (err: any) => {
+          // Handle validation errors from the server
+          if (err.status === 400) {
+            const validationErrors = err.error.errors;
+            for (const field in validationErrors) {
+              const formControl = this.onSubmitForm.get(
+                field.charAt(0).toLowerCase() + field.slice(1)
+              );
+              if (formControl) {
+                formControl.setErrors({
+                  serverError: validationErrors[field].join(' '),
+                });
+              }
+            }
+          }
+        },
+      });
     }
   }
 
+  // if feild is invalid then show error
   shouldShowError(controlName: string): boolean {
     const control = this.onSubmitForm.get(controlName);
     return (
@@ -144,6 +175,8 @@ export class CusAddressesComponent implements OnInit {
     });
   }
 }
+
+// validation for phone number
 export function phoneValueRangeValidator(
   minValue: number,
   maxValue: number

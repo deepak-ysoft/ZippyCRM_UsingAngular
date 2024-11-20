@@ -5,23 +5,25 @@ import { inject, Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class AddressesService {
+  private readonly baseUrl = `https://localhost:7269/api/Customer`;
+  
   http = inject(HttpClient);
   getAddresses(CId: any) {
     return this.http.get(
-      `https://localhost:7269/api/Customer/GetAddreses/${CId}`
+      `${this.baseUrl}/GetAddreses/${CId}`
     );
   }
 
   insertAddress(address: any) {
     return this.http.post(
-      `https://localhost:7269/api/Customer/CreateEditAddresses
+      `${this.baseUrl}/CreateEditAddresses
 `,
       address
     );
   }
   successDelete(id: number) {
     return this.http.delete(
-      `https://localhost:7269/api/Customer/DeleteAddress/${id}`
+      `${this.baseUrl}/DeleteAddress/${id}`
     );
   }
 }

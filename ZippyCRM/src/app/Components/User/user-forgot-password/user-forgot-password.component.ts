@@ -21,6 +21,7 @@ export class UserForgotPasswordComponent {
   emailSend = false;
   userService = inject(UsersService);
 
+  // forgot form validation
   onSubmitForm: FormGroup = new FormGroup({
     email: new FormControl('', [
       Validators.required,
@@ -29,14 +30,22 @@ export class UserForgotPasswordComponent {
       ),
     ]),
   });
+
+  // To send email into api
   onSend() {
     this.userService
       .forgotPassword(this.onSubmitForm.value)
       .subscribe((res: any) => {
         if (res) {
-          this.emailSend = true;
           const email = this.onSubmitForm.value;
           localStorage.setItem('userEmailForResetPassword', email.email);
+          Swal.fire({
+            title: 'Done!',
+            text: 'Check your email account, we sent you a link to reset your password!',
+            icon: 'success',
+            timer: 5000,
+            showConfirmButton: false,
+          });
         } else {
           Swal.fire({
             title: 'Error!',

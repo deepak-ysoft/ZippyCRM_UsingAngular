@@ -17,11 +17,55 @@
         <div
           class="card-body profile-card pt-4 d-flex flex-column align-items-center"
         >
+          <!-- Profile Image -->
           <img
             [src]="loggedUser.user.imagePath"
-            style="height: 45px; width: 45px"
-            class="rounded-circle"
+            style="height: 120px; width: 120px"
+            class="rounded-circle mb-3"
+            data-bs-toggle="modal"
+            data-bs-target="#imageModal"
+            alt="User Image"
           />
+          <div
+            class="modal fade"
+            id="imageModal"
+            aria-labelledby="imageModalLabel"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <img
+                    style="height: 500px !important; width: 500px !important"
+                    [src]="loggedUser.user.imagePath"
+                    class="img-fluid"
+                    alt="User Image"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal for displaying enlarged image -->
+          <!-- <div
+            class="modal fade"
+            id="imageModal"
+            tabindex="-1"
+            aria-labelledby="imageModalLabel"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-body text-center">
+                  <img
+                    style="height: 500px !important; width: 500px !important"
+                    [src]="loggedUser.user.imagePath"
+                    class="img-fluid"
+                    alt="User Image"
+                  />
+                </div>
+              </div>
+            </div>
+          </div> -->
+
           <h3>{{ loggedUser.user.username }}</h3>
           <h3>{{ loggedUser.userJob }}</h3>
           <div class="social-links mt-2">
@@ -155,25 +199,34 @@
                   >
                   <div class="col-md-8 col-lg-9">
                     <img
+                      *ngIf="selectedFile"
+                      [src]="imagePreview"
+                      style="height: 45px; width: 45px"
+                      class="rounded-circle cursor-pointer"
+                      (click)="fileInput.click()"
+                      alt="User Image"
+                    />
+                    <img
+                      *ngIf="selectedFile == null"
                       [src]="loggedUser.user.imagePath"
                       style="height: 45px; width: 45px"
-                      class="rounded-circle"
+                      class="rounded-circle cursor-pointer"
+                      (click)="fileInput.click()"
+                      alt="User Image"
                     />
-                    <div class="pt-2">
+
+                    <span class="custom-file-upload">
                       <input
+                        #fileInput
                         type="file"
                         (change)="onFileChange($event)"
                         formControlName="photo"
                         name="photo"
-                        class="uploadimage bi bi-upload btn btn-primary"
+                        id="fileInput"
+                        class="custom-file-input"
+                        style="display: none"
                       />
-                      <a
-                        style="height: 27px; width: 25px"
-                        class="btn btn-danger btn-sm"
-                        (click)="deleteUserImage(loggedUser.user.userId)"
-                        ><i class="bi bi-trash"></i
-                      ></a>
-                    </div>
+                    </span>
                   </div>
                 </div>
 
@@ -189,15 +242,22 @@
                       name="username"
                     />
                     <small
+                      class="text-danger"
                       *ngIf="
-                        onSubmitForm.get('username')?.invalid &&
-                        onSubmitForm.get('username')?.touched &&
-                        !onSubmitForm.controls['username'].hasError('pattern')
+                        onSubmitForm.get('username')?.hasError('serverError')
+                      "
+                      >{{ onSubmitForm.get('username')?.errors?.['serverError'] }}</small
+                    ><small
+                      *ngIf="
+                        shouldShowError('username') &&
+                        !onSubmitForm.controls['username'].hasError(
+                          'pattern'
+                        ) &&
+                        !onSubmitForm.get('username')?.hasError('serverError')
                       "
                       class="text-danger"
+                      >Please enter user name!</small
                     >
-                      Please enter user name!
-                    </small>
                     <small
                       class="text-danger"
                       *ngIf="
@@ -219,15 +279,18 @@
                       formControlName="email"
                       name="email"
                     /><small
+                      class="text-danger"
+                      *ngIf="onSubmitForm.get('email')?.hasError('serverError')"
+                      >{{ onSubmitForm.get('email')?.errors?.['serverError'] }}</small
+                    ><small
                       *ngIf="
-                        onSubmitForm.get('email')?.invalid &&
-                        onSubmitForm.get('email')?.touched &&
-                        !onSubmitForm.controls['email'].hasError('pattern')
+                        shouldShowError('email') &&
+                        !onSubmitForm.controls['email'].hasError('pattern') &&
+                        !onSubmitForm.get('email')?.hasError('serverError')
                       "
                       class="text-danger"
+                      >Please enter Email.</small
                     >
-                      Please enter email!
-                    </small>
                     <small
                       class="text-danger"
                       *ngIf="onSubmitForm.controls['email'].hasError('pattern')"
@@ -249,14 +312,20 @@
                       formControlName="company"
                       name="company"
                     /><small
+                      class="text-danger"
                       *ngIf="
-                        onSubmitForm.get('company')?.invalid &&
-                        onSubmitForm.get('company')?.touched
+                        onSubmitForm.get('company')?.hasError('serverError')
+                      "
+                      >{{ onSubmitForm.get('company')?.errors?.['serverError'] }}</small
+                    >
+                    <small
+                      *ngIf="
+                        shouldShowError('company') &&
+                        !onSubmitForm.get('company')?.hasError('serverError')
                       "
                       class="text-danger"
+                      >Please enter company.</small
                     >
-                      Please enter company name!
-                    </small>
                   </div>
                 </div>
 
@@ -277,6 +346,18 @@
                         {{ job.text }}
                       </option>
                     </select>
+                    <small
+                      class="text-danger"
+                      *ngIf="onSubmitForm.get('jobId')?.hasError('serverError')"
+                      >{{ onSubmitForm.get('jobId')?.errors?.['serverError'] }}</small
+                    ><small
+                      *ngIf="
+                        shouldShowError('jobId') &&
+                        !onSubmitForm.get('jobId')?.hasError('serverError')
+                      "
+                      class="text-danger"
+                      >Please select your job.</small
+                    >
                   </div>
                 </div>
 
@@ -290,16 +371,18 @@
                       name="phone"
                     />
                     <small
+                      class="text-danger"
+                      *ngIf="onSubmitForm.get('phone')?.hasError('serverError')"
+                      >{{ onSubmitForm.get('phone')?.errors?.['serverError'] }}</small
+                    ><small
                       *ngIf="
-                        onSubmitForm.get('phone')?.invalid &&
+                        shouldShowError('phone') &&
+                        !onSubmitForm.get('phone')?.hasError('serverError') &&
                         !onSubmitForm.get('phone')?.hasError('minPhoneValue') &&
-                        !onSubmitForm.get('phone')?.hasError('maxPhoneValue') &&
-                        (onSubmitForm.get('phone')?.touched ||
-                          onSubmitForm.get('phone')?.dirty)
+                        !onSubmitForm.get('phone')?.hasError('maxPhoneValue')
                       "
                       class="text-danger"
-                    >
-                      Please enter phone number!</small
+                      >Please enter phone number.</small
                     >
                     <small
                       *ngIf="
@@ -331,14 +414,18 @@
                       formControlName="country"
                       name="country"
                     /><small
+                      class="text-danger"
                       *ngIf="
-                        onSubmitForm.get('country')?.invalid &&
-                        (onSubmitForm.get('country')?.touched ||
-                          onSubmitForm.get('country')?.dirty)
+                        onSubmitForm.get('country')?.hasError('serverError')
+                      "
+                      >{{ onSubmitForm.get('country')?.errors?.['serverError'] }}</small
+                    ><small
+                      *ngIf="
+                        shouldShowError('country') &&
+                        !onSubmitForm.get('country')?.hasError('serverError')
                       "
                       class="text-danger"
-                    >
-                      Please enter country!</small
+                      >Please enter country.</small
                     >
                   </div>
                 </div>
@@ -354,14 +441,18 @@
                       formControlName="address"
                       name="address"
                     /><small
+                      class="text-danger"
                       *ngIf="
-                        onSubmitForm.get('address')?.invalid &&
-                        (onSubmitForm.get('address')?.touched ||
-                          onSubmitForm.get('address')?.dirty)
+                        onSubmitForm.get('address')?.hasError('serverError')
+                      "
+                      >{{ onSubmitForm.get('address')?.errors?.['serverError'] }}</small
+                    ><small
+                      *ngIf="
+                        shouldShowError('address') &&
+                        !onSubmitForm.get('address')?.hasError('serverError')
                       "
                       class="text-danger"
-                    >
-                      Please enter address!</small
+                      >Please enter address.</small
                     >
                   </div>
                 </div>
@@ -379,14 +470,20 @@
                       style="height: 60px"
                     ></textarea>
                     <small
+                      class="text-danger"
                       *ngIf="
-                        onSubmitForm.get('discription')?.invalid &&
-                        (onSubmitForm.get('discription')?.touched ||
-                          onSubmitForm.get('discription')?.dirty)
+                        onSubmitForm.get('discription')?.hasError('serverError')
+                      "
+                      >{{ onSubmitForm.get('discription')?.errors?.['serverError'] }}</small
+                    ><small
+                      *ngIf="
+                        shouldShowError('discription') &&
+                        !onSubmitForm
+                          .get('discription')
+                          ?.hasError('serverError')
                       "
                       class="text-danger"
-                    >
-                      Please enter discription!</small
+                      >Please enter discription.</small
                     >
                   </div>
                 </div>

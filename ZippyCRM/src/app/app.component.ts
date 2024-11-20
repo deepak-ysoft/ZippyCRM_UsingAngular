@@ -1,15 +1,18 @@
 import { Component, ViewEncapsulation } from '@angular/core';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { LocalStorageService } from './Services/local-storage.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, NgxSpinnerModule],
+  imports: [RouterOutlet, NgxSpinnerModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   encapsulation: ViewEncapsulation.None,
 })
 export class AppComponent {
   title = 'ZippyCRM';
+  constructor(private localStorageService: LocalStorageService) {}
 }
