@@ -26,6 +26,8 @@ import Quill from 'quill';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CustomerServiceService } from '../../../../Services/customerService/customer-service.service';
 import Swal from 'sweetalert2';
+import { LocalStorageService } from '../../../../Services/local-storage.service';
+import { UserLocalStorageService } from '../../../../Services/userLocalStorage.service';
 declare var bootstrap: any;
 
 @Component({
@@ -136,15 +138,16 @@ export class CusNotesComponent implements OnInit {
     this.modalPopupAndMsg = 'Edit Notes';
     this.populateQuillEditor();
   }
+  userLocalStorageService = inject(UserLocalStorageService);
+
   // Handle form submission
   onSubmit() {
     this.submitted = true;
     if (this.onSubmitForm.valid) {
       this.updateHiddenInput(); // Ensure the Quill content is updated in the form before submitting
-      const userData = localStorage.getItem('loginUser');
-      if (userData) {
-        this.loggedUser = JSON.parse(userData); // Parse the string into an object
-      }
+      this.userLocalStorageService.user$.subscribe((user) => {
+        this.loggedUser = user;
+      });
       this.onSubmitForm.get('userId')?.setValue(this.loggedUser.user.userId);
 
       if (this.onSubmitForm.get('notesId')?.value == null) {

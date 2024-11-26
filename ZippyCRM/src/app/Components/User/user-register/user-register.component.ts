@@ -14,6 +14,7 @@ import {
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { UsersService } from '../../../Services/customerService/users.service';
+import { UserLocalStorageService } from '../../../Services/userLocalStorage.service';
 
 @Component({
   selector: 'app-user-register',
@@ -94,14 +95,12 @@ export class UserRegisterComponent implements OnInit {
       }));
     });
   }
+  userLocalStorageService = inject(UserLocalStorageService);
 
   loadUserData(): void {
-    const userData = localStorage.getItem('loginUser');
-    if (userData) {
-      this.loggedUser = JSON.parse(userData); // Parse the string into an object
-    } else {
-      this.loggedUser = null; // Handle the case where there is no user data
-    }
+    this.userLocalStorageService.user$.subscribe((user) => {
+      this.loggedUser = user;
+    });
   }
 
   // when user click on change password
@@ -157,12 +156,7 @@ export class UserRegisterComponent implements OnInit {
         formDataObject[key] = value;
       });
       console.log(formDataObject);
-      // // Handle file upload if a new file is selected
-      // if (this.selectedFile) {
-      //   formData.append('photo', this.selectedFile, this.selectedFile.name);
-      // } else {
-      //   formData.append('photo', 'Default.jpg');
-      // }
+
       this.service.insertUser(formData).subscribe({
         next: (res: any) => {
           // Check if the response indicates success or failure
@@ -175,11 +169,20 @@ export class UserRegisterComponent implements OnInit {
               showConfirmButton: false,
             });
             this.router.navigateByUrl('login'); // Navigate to a login or dashboard page
-          } else {
+          } else if (!res.success && res.exists == 'EmailExists') {
             // If the response is false or indicates failure (like email already exists)
             Swal.fire({
               title: 'Error!',
               text: 'Email is already exist.',
+              icon: 'error',
+              timer: 2000,
+              showConfirmButton: false,
+            });
+          } else if (!res.success && res.exists == 'MobileNumberExists') {
+            // If the response is false or indicates failure (like email already exists)
+            Swal.fire({
+              title: 'Error!',
+              text: 'Mobile Number is already exist.',
               icon: 'error',
               timer: 2000,
               showConfirmButton: false,

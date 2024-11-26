@@ -21,7 +21,7 @@
           <img
             [src]="loggedUser.user.imagePath"
             style="height: 120px; width: 120px"
-            class="rounded-circle mb-3"
+            class="rounded-circle mb-3 cursor-pointer"
             data-bs-toggle="modal"
             data-bs-target="#imageModal"
             alt="User Image"
@@ -45,26 +45,6 @@
             </div>
           </div>
 
-          <!-- Modal for displaying enlarged image -->
-          <!-- <div
-            class="modal fade"
-            id="imageModal"
-            tabindex="-1"
-            aria-labelledby="imageModalLabel"
-          >
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-body text-center">
-                  <img
-                    style="height: 500px !important; width: 500px !important"
-                    [src]="loggedUser.user.imagePath"
-                    class="img-fluid"
-                    alt="User Image"
-                  />
-                </div>
-              </div>
-            </div>
-          </div> -->
 
           <h3>{{ loggedUser.user.username }}</h3>
           <h3>{{ loggedUser.userJob }}</h3>

@@ -1,3 +1,8 @@
 a {
     text-decoration: none !important;
 }
+
+.overflow {
+    max-height: 500px !important;
+    overflow: auto;
+}

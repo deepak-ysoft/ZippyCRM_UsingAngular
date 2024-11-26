@@ -27,6 +27,7 @@
     "@fullcalendar/daygrid": "^6.1.15",
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
+    "@ng-bootstrap/ng-bootstrap": "^17.0.1",
     "@sweetalert2/ngx-sweetalert2": "^12.4.0",
     "@swimlane/ngx-datatable": "^20.1.0",
     "angular-datatables": "^18.0.0",

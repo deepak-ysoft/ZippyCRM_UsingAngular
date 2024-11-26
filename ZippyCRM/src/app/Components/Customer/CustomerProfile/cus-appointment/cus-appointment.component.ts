@@ -233,11 +233,10 @@ export class CusAppointmentComponent implements OnInit {
       newStart: newStart,
       newEnd: newEnd,
     };
-    console.log('Payload:', { id: eventId, newStart, newEnd });
 
     this.service.updateAppointment(eventId, newStart, newEnd).subscribe({
       next: (response) => {
-        console.log('Event updated successfully', response);
+        console.log('Event updated successfully');
       },
       error: (error) => {
         console.error('Error updating event', error);
@@ -286,7 +285,6 @@ export class CusAppointmentComponent implements OnInit {
           this.appointment = data;
 
           const modalElement = this.addAppointmentModal?.nativeElement;
-          console.log('data', this.appointment);
           this.modalPopupAndMsg = 'Appointment Details';
 
           const modal =

@@ -17,6 +17,7 @@ import {
 } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { delay } from 'rxjs';
+import { UserLocalStorageService } from '../../../Services/userLocalStorage.service';
 @Component({
   selector: 'app-user-profile',
   standalone: true,
@@ -37,7 +38,11 @@ export class UserProfileComponent implements OnInit {
   onSubmitForm: FormGroup;
   submitted = false;
 
-  constructor(private service: UsersService, private fb: FormBuilder) {
+  constructor(
+    private service: UsersService,
+    private fb: FormBuilder,
+    private userLocalstorageService: UserLocalStorageService
+  ) {
     this.loadUserData();
 
     // Edit user form validation
@@ -120,12 +125,9 @@ export class UserProfileComponent implements OnInit {
   }
 
   loadUserData(): void {
-    const userData = localStorage.getItem('loginUser');
-    if (userData) {
-      this.loggedUser = JSON.parse(userData); // Parse the string into an object
-    } else {
-      this.loggedUser = null; // Handle the case where there is no user data
-    }
+    this.userLocalstorageService.user$.subscribe((user) => {
+      this.loggedUser = user;
+    });
   }
 
   // if user select image for profile
@@ -200,13 +202,13 @@ export class UserProfileComponent implements OnInit {
         if (res.success) {
           Swal.fire({
             title: 'Done!',
-            text: "You have updated the user's data. You will have to login again..",
+            text: 'User Updated',
             icon: 'success',
-            timer: 3000,
+            timer: 1000,
             showConfirmButton: false,
           }).then(() => {
-            localStorage.clear();
-            this.router.navigateByUrl('/login');
+            this.userLocalstorageService.clearUser();
+            this.userLocalstorageService.setUser(res);
           });
         } else if (!res.success && res.message == 'Password Not Match') {
           Swal.fire({

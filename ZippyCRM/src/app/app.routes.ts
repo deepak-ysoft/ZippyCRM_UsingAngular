@@ -13,7 +13,9 @@ import { CustomerProfileComponent } from './Components/Customer/CustomerProfile/
 import { CusContactComponent } from './Components/Customer/CustomerProfile/cus-contact/cus-contact.component';
 import { CustomerDetailsComponent } from './Components/Customer/customer-details/customer-details.component';
 import { authGuard } from './Services/auth.guard';
-import { ContactUsComponent } from './Components/contact-us/contact-us.component';
+import { ContactUsComponent } from './Components/ContactUs/contact-us/contact-us.component';
+import { ContactUsListComponent } from './Components/ContactUs/contact-us-list/contact-us-list.component';
+import { ShowNotificationPopupComponent } from './Components/ContactUs/show-notification-popup/show-notification-popup.component';
 
 export const routes: Routes = [
   {
@@ -74,6 +76,16 @@ export const routes: Routes = [
       {
         path: 'customer-contact',
         component: CusContactComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'contact-us-list',
+        component: ContactUsListComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'contact-us-details',
+        component: ShowNotificationPopupComponent,
         canActivate: [authGuard],
       },
       {

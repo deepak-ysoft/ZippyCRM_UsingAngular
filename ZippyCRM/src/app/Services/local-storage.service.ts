@@ -1,41 +1,47 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LocalStorageService {
-  private inactivityTimeout: any;
-  private inactivityDuration = 60 * 60 * 1000; // 1 hour in milliseconds
+  private lastActivityKey = 'lastActivityTimestamp'; // Key for tracking last activity timestamp
+  private sessionKey = 'isSessionActive'; // Key to track session activity
+  private clearDuration = 5000; // Set to 5 seconds for testing purposes (adjust as needed)
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     if (isPlatformBrowser(this.platformId)) {
-      this.resetInactivityTimer(); // Start the inactivity timer only in the browser
-      this.trackUserActivity();
+      this.checkBrowserClose();
+      this.trackBrowserClose();
     }
   }
 
-  // Function to clear localStorage
-  clearLocalStorage(): void {
+  // Clear localStorage
+  private clearLocalStorage(): void {
     localStorage.clear();
-    console.log('localStorage has been cleared due to inactivity.');
   }
 
-  // Function to reset inactivity timer
-  resetInactivityTimer(): void {
-    clearTimeout(this.inactivityTimeout);
-    this.inactivityTimeout = setTimeout(
-      () => this.clearLocalStorage(),
-      this.inactivityDuration
-    );
+  // Check browser close or reload on startup
+  private checkBrowserClose(): void {
+    const lastActivity = localStorage.getItem(this.lastActivityKey);
+    const now = Date.now();
+
+    if (lastActivity && now - parseInt(lastActivity, 10) > this.clearDuration) {
+      this.clearLocalStorage();
+    }
+
+    // Set the session active
+    sessionStorage.setItem(this.sessionKey, 'true');
   }
 
-  // Function to track user activity
-  private trackUserActivity(): void {
-    // Listen for user events that will reset the inactivity timer
-    window.addEventListener('click', () => this.resetInactivityTimer());
-    window.addEventListener('keypress', () => this.resetInactivityTimer());
-    window.addEventListener('mousemove', () => this.resetInactivityTimer());
-    window.addEventListener('scroll', () => this.resetInactivityTimer());
+  // Track browser/tab close
+  private trackBrowserClose(): void {
+    window.addEventListener('beforeunload', () => {
+      if (sessionStorage.getItem(this.sessionKey)) {
+        // Save the last activity timestamp only on browser close
+        localStorage.setItem(this.lastActivityKey, Date.now().toString());
+      }
+    });
   }
 }

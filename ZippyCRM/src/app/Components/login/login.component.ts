@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { UsersService } from '../../Services/customerService/users.service';
 import Swal from 'sweetalert2';
 import { BehaviorSubject } from 'rxjs';
+import { UserLocalStorageService } from '../../Services/userLocalStorage.service';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +20,7 @@ export class LoginComponent implements OnInit {
   login: UserLogin;
   private tokenSubject = new BehaviorSubject<string | null>(null);
   token$ = this.tokenSubject.asObservable();
+  localStorageService = inject(UserLocalStorageService);
 
   ngOnInit(): void {}
   constructor() {
@@ -35,9 +37,10 @@ export class LoginComponent implements OnInit {
         this.tokenSubject.next(res.Token);
 
         localStorage.clear();
-        localStorage.setItem('loginUser', JSON.stringify(res));
+        this.localStorageService.setUser(res);
+        //  localStorage.setItem('loginUser', JSON.stringify(res));
         localStorage.setItem('loginPassword', login.password);
-
+        this.service.triggerSomeEvent();
         localStorage.setItem('jwtToken', res.token);
         this.router.navigateByUrl('index'); // navigate user on index page
       } else {
@@ -52,6 +55,9 @@ export class LoginComponent implements OnInit {
     });
   }
   getToken() {
-    return localStorage.getItem('jwtToken');
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('jwtToken');
+    }
+    return 'nothing';
   }
 }
