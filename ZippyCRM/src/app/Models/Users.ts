@@ -28,6 +28,7 @@ export class Users {
   accountSetup: boolean; // Default to false
   isActive: boolean; // Default to false
   accountStatus: AccountStatus; // Default to Inactive
+s: any;
 
   constructor() {
     this.userId = 0; // Assuming default value for new users

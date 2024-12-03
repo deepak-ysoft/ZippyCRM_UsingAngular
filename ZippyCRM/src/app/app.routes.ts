@@ -12,10 +12,13 @@ import { CustomerListComponent } from './Components/Customer/customer-list/custo
 import { CustomerProfileComponent } from './Components/Customer/CustomerProfile/customer-profile/customer-profile.component';
 import { CusContactComponent } from './Components/Customer/CustomerProfile/cus-contact/cus-contact.component';
 import { CustomerDetailsComponent } from './Components/Customer/customer-details/customer-details.component';
-import { authGuard } from './Services/auth.guard';
 import { ContactUsComponent } from './Components/ContactUs/contact-us/contact-us.component';
 import { ContactUsListComponent } from './Components/ContactUs/contact-us-list/contact-us-list.component';
 import { ShowNotificationPopupComponent } from './Components/ContactUs/show-notification-popup/show-notification-popup.component';
+import { ChatComponent } from './Components/User/chat/chat.component';
+import { JoinRoomComponent } from './Components/User/join-room/join-room.component';
+import { DirectMessageComponent } from './Components/User/direct-message/direct-message.component';
+import { authGuard } from './Services/auth.service';
 
 export const routes: Routes = [
   {
@@ -91,6 +94,21 @@ export const routes: Routes = [
       {
         path: 'contact-us',
         component: ContactUsComponent,
+      },
+      {
+        path: 'direct-message-user',
+        component: DirectMessageComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'chat-with-user',
+        component: ChatComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'join-chat',
+        component: JoinRoomComponent,
+        canActivate: [authGuard],
       },
     ],
   }, //defualt route

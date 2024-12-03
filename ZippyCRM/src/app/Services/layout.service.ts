@@ -34,9 +34,7 @@ export class LayoutService {
               this.contactUsList,
               this.notificationCount
             ); // Update the shared service
-            console.log(this.contactUsList);
           } else {
-            console.log('ContactUs list not loaded.');
           }
         });
     }

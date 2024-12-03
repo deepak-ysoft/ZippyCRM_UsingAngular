@@ -166,7 +166,6 @@ export class CustomerProfileComponent implements OnInit {
     const fetchInfo = {};
 
     const successCallback = (events: any) => {
-      console.log('Fetched events:', events);
     };
 
     const failureCallback = (error: any) => {

@@ -236,14 +236,12 @@ export class CusAppointmentComponent implements OnInit {
 
     this.service.updateAppointment(eventId, newStart, newEnd).subscribe({
       next: (response) => {
-        console.log('Event updated successfully');
       },
       error: (error) => {
         console.error('Error updating event', error);
         eventDropInfo.revert(); // Revert the changes if failed
       },
       complete: () => {
-        console.log('Request completed.');
       },
     });
   }
@@ -261,7 +259,6 @@ export class CusAppointmentComponent implements OnInit {
       })
       .subscribe(
         (response) => {
-          console.log('Event resized successfully');
         },
         (error) => {
           console.error('Error resizing event', error);

@@ -95,8 +95,6 @@ export class CusDocumentsComponent implements OnInit {
     // Push the current path to history before navigating to the new folder
     if (this.currentPath) {
       this.folderHistory.push(this.currentPath);
-      console.log('Current Path:', this.currentPath);
-      console.log('Folder History:', this.folderHistory);
     }
 
     this.currentPath = path; // Update the current path
@@ -104,7 +102,6 @@ export class CusDocumentsComponent implements OnInit {
     // API call to get folder contents
     this.service.getChildAndParentDocuments(path).subscribe(
       (res: any) => {
-        console.log('Response from service:', res); // Log the response
         this.currentFolderContent = res; // Ensure it's an array
       },
       (error) => {
@@ -188,7 +185,6 @@ export class CusDocumentsComponent implements OnInit {
       .copyFolder(folderName, this.customerId, type, filePath)
       .subscribe(
         (response) => {
-          console.log('Folder copied successfully', response);
         },
         (error) => {
           console.error('Error copying folder:', error);
@@ -202,7 +198,6 @@ export class CusDocumentsComponent implements OnInit {
       .copyFolder(folderName, this.customerId, type, filePath)
       .subscribe(
         (response) => {
-          console.log('Folder copied successfully', response);
         },
         (error) => {
           console.error('Error copying folder:', error);
@@ -216,7 +211,6 @@ export class CusDocumentsComponent implements OnInit {
       .subscribe(
         (response) => {
           this.getCustomerDocuments(this.customerId);
-          console.log('Folder pasted successfully:', response);
           // Handle successful response
         },
         (error) => {
@@ -231,7 +225,6 @@ export class CusDocumentsComponent implements OnInit {
     this.service
       .deleteFolder(destinationFoldername, filePath)
       .subscribe((response) => {
-        console.log('Folder deleted successfully:', response);
         this.getInnerFiles(response.path);
       });
   }
@@ -290,10 +283,8 @@ export class CusDocumentsComponent implements OnInit {
       )
       .subscribe({
         next: (res: string) => {
-          console.log('Directory retrieval successful:', res);
           const updatedFolderPath = res; // No need to parse if it's plain text
           if (updatedFolderPath) {
-            console.log('Calling getInnerFiles with path:', updatedFolderPath);
             this.getInnerFiles(updatedFolderPath);
           }
         },

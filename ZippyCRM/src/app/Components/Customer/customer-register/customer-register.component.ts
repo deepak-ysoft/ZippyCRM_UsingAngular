@@ -184,7 +184,6 @@ export class CustomerRegisterComponent implements OnInit {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       this.selectedFile = file;
-      console.log(this.selectedFile);
     }
   }
 
@@ -245,12 +244,10 @@ export class CustomerRegisterComponent implements OnInit {
         formData.append('photo', this.selectedFile, this.selectedFile.name);
       }
 
-      console.log('Submitting FormData:', formData);
 
       this.cusService.insertCustomer(formData).subscribe({
         next: (res: any) => {
           if (res.success) {
-            console.log('Response:', res);
             this.router.navigateByUrl('customer-list');
           } else if (res.message == 'emai1') {
             Swal.fire({

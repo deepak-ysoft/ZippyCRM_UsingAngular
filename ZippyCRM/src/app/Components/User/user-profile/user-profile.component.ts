@@ -103,7 +103,6 @@ export class UserProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.service.getJobs().subscribe((res: any) => {
-      console.log('API Response:', res);
       this.jobs = res;
       this.jobsOptions = this.jobs.map((job) => ({
         value: job.jobId,

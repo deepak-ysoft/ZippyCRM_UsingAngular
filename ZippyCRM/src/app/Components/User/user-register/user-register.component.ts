@@ -87,7 +87,6 @@ export class UserRegisterComponent implements OnInit {
 
   ngOnInit(): void {
     this.service.getJobs().subscribe((res: any) => {
-      console.log('API Response:', res);
       this.jobs = res;
       this.jobsOptions = this.jobs.map((job) => ({
         value: job.jobId,
@@ -108,7 +107,6 @@ export class UserRegisterComponent implements OnInit {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       this.selectedFile = file;
-      console.log(this.selectedFile);
     }
   }
 
@@ -155,7 +153,6 @@ export class UserRegisterComponent implements OnInit {
       formData.forEach((value, key) => {
         formDataObject[key] = value;
       });
-      console.log(formDataObject);
 
       this.service.insertUser(formData).subscribe({
         next: (res: any) => {
