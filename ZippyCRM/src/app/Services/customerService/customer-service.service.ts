@@ -1,28 +1,34 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import Swal from 'sweetalert2';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CustomerServiceService {
   constructor(private http: HttpClient) {}
-  private readonly baseUrl = `https://localhost:7269/api/Customer`;
+  private baseUrl = environment.apiUrl;
   getCustomerProfile(id: any) {
-    return this.http.get(`${this.baseUrl}/CustomerProfile/${id}`);
+    return this.http.get(`${this.baseUrl}api/Customer/CustomerProfile/${id}`);
   }
 
   getCustomerContacts(customerId: any) {
     const params = new HttpParams().set('customerId', customerId);
-    return this.http.get(`${this.baseUrl}/ContactList?`, {
+    return this.http.get(`${this.baseUrl}api/Customer/ContactList?`, {
       params,
     });
   }
   getDataForEdtiCustomer(id: any) {
-    return this.http.get(`${this.baseUrl}/CreateEditCustomer/${id}`);
+    return this.http.get(
+      `${this.baseUrl}api/Customer/CreateEditCustomer/${id}`
+    );
   }
   insertCustomer(customer: FormData): any {
-    return this.http.post(`${this.baseUrl}/CreateEditCustomer`, customer);
+    return this.http.post(
+      `${this.baseUrl}api/Customer/CreateEditCustomer`,
+      customer
+    );
   }
   confirmDelete() {
     return Swal.fire({
@@ -36,6 +42,6 @@ export class CustomerServiceService {
   }
 
   successDelete(id: any) {
-    return this.http.delete(`${this.baseUrl}/DeleteCustomer/${id}`);
+    return this.http.delete(`${this.baseUrl}api/Customer/DeleteCustomer/${id}`);
   }
 }

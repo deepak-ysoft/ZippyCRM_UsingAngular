@@ -1,23 +1,24 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, EMPTY, Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DocumentsService {
   constructor(private http: HttpClient) {}
-  private readonly baseUrl = `https://localhost:7269/api/Customer`;
+    private baseUrl = environment.apiUrl;
 
   getDocuments(customerId: any) {
     return this.http.get(
-      `${this.baseUrl}/GetAllFiles?customerId=${customerId}`
+      `${this.baseUrl}api/Customer/GetAllFiles?customerId=${customerId}`
     );
   }
 
   getChildAndParentDocuments(path: any) {
     return this.http.get<any[]>(
-      `${this.baseUrl}/GetFolderContents?path=${path}`
+      `${this.baseUrl}api/Customer/GetFolderContents?path=${path}`
     );
   }
   copyFolder(
@@ -39,7 +40,7 @@ export class DocumentsService {
       .set('Type', folderType)
       .set('filePath', path);
 
-    return this.http.post(`${this.baseUrl}/CopyFolder`, {}, { params });
+    return this.http.post(`${this.baseUrl}api/Customer/CopyFolder`, {}, { params });
   }
   pasteFolder(
     destinationFoldername: string,
@@ -53,7 +54,7 @@ export class DocumentsService {
       .set('destinationFoldername', folderName)
       .set('customerId', id)
       .set('sourceFolderPath', filepath);
-    return this.http.post(`${this.baseUrl}/PasteFolder`, {}, { params });
+    return this.http.post(`${this.baseUrl}api/Customer/PasteFolder`, {}, { params });
   }
 
   deleteFolder(folderName: string, filePath: string): Observable<any> {
@@ -63,7 +64,7 @@ export class DocumentsService {
       .set('folderName', ffolderName)
       .set('filePath', filepath);
 
-    return this.http.delete(`${this.baseUrl}/DeleteFolder`, {
+    return this.http.delete(`${this.baseUrl}api/Customer/DeleteFolder`, {
       params,
     });
   }
@@ -79,17 +80,17 @@ export class DocumentsService {
       .set('folderName', foldername)
       .set('currentPath', currentpath)
       .set('customerId', id);
-    return this.http.post(`${this.baseUrl}/CreateDirectory`, {}, { params });
+    return this.http.post(`${this.baseUrl}api/Customer/CreateDirectory`, {}, { params });
   }
 
   serchFileOrFolderSer(customerId: number, serchFolder: string) {
     return this.http.get(
-      `${this.baseUrl}/GetAllFilesBySearching?customerId=${customerId}&searchQuery=${serchFolder}`
+      `${this.baseUrl}api/Customer/GetAllFilesBySearching?customerId=${customerId}&searchQuery=${serchFolder}`
     );
   }
 
   getDirectory(path: any) {
-    return this.http.get(`${this.baseUrl}/GetDirectory?path=${path}`, {
+    return this.http.get(`${this.baseUrl}api/Customer/GetDirectory?path=${path}`, {
       responseType: 'text', // Tells HttpClient to expect a plain text response
     });
   }
@@ -107,7 +108,7 @@ export class DocumentsService {
       .set('currentFolder', currentfolder)
       .set('newFolderName', newfoldername);
     return this.http.post(
-      `${this.baseUrl}/RenameFolder`,
+      `${this.baseUrl}api/Customer/RenameFolder`,
       {},
       {
         params,

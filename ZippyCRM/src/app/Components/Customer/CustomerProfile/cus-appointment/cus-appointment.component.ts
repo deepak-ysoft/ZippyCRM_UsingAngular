@@ -30,6 +30,7 @@ import { Appointment } from '../../../../Models/cusAppointment.model';
 import { AppointmentService } from '../../../../Services/customerService/appointment.service';
 import { CustomerServiceService } from '../../../../Services/customerService/customer-service.service';
 import Swal from 'sweetalert2';
+import { environment } from '../../../../../environments/environment';
 declare var bootstrap: any;
 
 @Component({
@@ -49,6 +50,7 @@ export class CusAppointmentComponent implements OnInit {
   @ViewChild('addAppointmentModal', { static: false })
   addAppointmentModal!: ElementRef;
   submitted = false;
+  private baseUrl = environment.apiUrl;
 
   // for appointment address
   onSubmitForm: FormGroup = new FormGroup({
@@ -193,7 +195,7 @@ export class CusAppointmentComponent implements OnInit {
   ): void {
     this.http
       .get(
-        `https://localhost:7269/api/Customer/GetAppointments/${this.customerId}`
+        `${this.baseUrl}api/Customer/GetAppointments/${this.customerId}`
       )
       .subscribe(
         (data: any) => {
@@ -252,7 +254,7 @@ export class CusAppointmentComponent implements OnInit {
     const newStart = event.start.toISOString();
     const newEnd = event.end ? event.end.toISOString() : newStart;
     this.http
-      .post(`https://localhost:7269/api/Customer/UpdateAppointment`, {
+      .post(`${this.baseUrl}api/Customer/UpdateAppointment`, {
         id: event.id,
         newStart,
         newEnd,
@@ -273,7 +275,7 @@ export class CusAppointmentComponent implements OnInit {
 
     this.http
       .get(
-        `https://localhost:7269/api/Customer/GetAppointmentDetails/${eventId}`
+        `${this.baseUrl}api/Customer/GetAppointmentDetails/${eventId}`
       )
       .subscribe(
         (data: any) => {

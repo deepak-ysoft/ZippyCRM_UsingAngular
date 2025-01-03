@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-contact-us-list',
@@ -24,6 +25,7 @@ export class ContactUsListComponent {
   totalPages = 0;
   searchTerm = ''; // For search input
   router = inject(Router);
+  private baseUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
@@ -51,7 +53,7 @@ export class ContactUsListComponent {
 
     this.http
       .get<any>(
-        `https://localhost:7269/api/Home/GetContactUsList/${this.loggedUser.user.userId}`,
+        `${this.baseUrl}api/Home/GetContactUsList/${this.loggedUser.user.userId}`,
         { params }
       )
       .subscribe((response: any) => {

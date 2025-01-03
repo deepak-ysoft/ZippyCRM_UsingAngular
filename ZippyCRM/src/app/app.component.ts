@@ -1,6 +1,5 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { LocalStorageService } from './Services/local-storage.service';
 import { ChatService } from './Services/MessageService/chat.service';
@@ -12,9 +11,8 @@ import { ChatService } from './Services/MessageService/chat.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   encapsulation: ViewEncapsulation.None,
-  providers: [ChatService], 
+  providers: [ChatService],
 })
 export class AppComponent {
   title = 'ZippyCRM';
-  constructor(private localStorageService: LocalStorageService) {}
 }

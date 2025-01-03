@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { CustomerServiceService } from '../../../Services/customerService/customer-service.service';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-customer-list',
@@ -27,7 +28,7 @@ export class CustomerListComponent implements OnInit {
   totalPages = 0;
   searchTerm = ''; // For search input
   http = inject(HttpClient);
-
+  private baseUrl = environment.apiUrl
   ngOnInit(): void {
     this.loadPage(1); // Load the first page
   }
@@ -45,7 +46,7 @@ export class CustomerListComponent implements OnInit {
     }; // Get customer parameter
 
     this.http
-      .get<any>('https://localhost:7269/api/Customer/GetCustomers', { params })
+      .get<any>(`${this.baseUrl}api/Customer/GetCustomers`, { params })
       .subscribe((response: any) => {
         this.CustomerList = response.data;
         this.totalCustomers = response.totalCount;
@@ -74,7 +75,6 @@ export class CustomerListComponent implements OnInit {
         );
       }
     }
-
     return pages;
   }
 
@@ -87,6 +87,7 @@ export class CustomerListComponent implements OnInit {
       });
     }
   }
+
   customerDetails(customer: Customer): void {
     this.customer = new Customer();
     this.customer = customer;
@@ -96,6 +97,7 @@ export class CustomerListComponent implements OnInit {
       });
     }
   }
+  
   deleteCustomer(cId: number): void {
     this.cusService.confirmDelete().then((result) => {
       if (result.isConfirmed) {

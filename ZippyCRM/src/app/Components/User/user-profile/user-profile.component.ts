@@ -18,6 +18,7 @@ import {
 import { ReactiveFormsModule } from '@angular/forms';
 import { delay } from 'rxjs';
 import { UserLocalStorageService } from '../../../Services/userLocalStorage.service';
+import { environment } from '../../../../environments/environment';
 @Component({
   selector: 'app-user-profile',
   standalone: true,
@@ -37,6 +38,7 @@ export class UserProfileComponent implements OnInit {
   passwordForm: FormGroup;
   onSubmitForm: FormGroup;
   submitted = false;
+  private baseUrl = environment.apiUrl
 
   constructor(
     private service: UsersService,
@@ -175,7 +177,7 @@ export class UserProfileComponent implements OnInit {
         formData.append('photo', this.selectedFile, this.selectedFile.name);
         this.submitFormData(formData);
       } else {
-        const baseUrl = 'https://localhost:7269/uploads/images/users/';
+        const baseUrl = `${this.baseUrl}uploads/images/users/`;
         let imagePath = '';
         imagePath = this.loggedUser.user.imagePath.replace(baseUrl, '');
         this.http

@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { AuthService } from '../auth.service';
+import { environment } from '../../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DirectMessageService {
   private hubConnection!: signalR.HubConnection;
-
+  private baseUrl = environment.apiUrl;
   constructor(private authService: AuthService) {}
 
   // Start SignalR connection
@@ -21,7 +22,7 @@ export class DirectMessageService {
     }
 
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:7269/DirectMessageHub', {
+      .withUrl(`${this.baseUrl}DirectMessageHub`, {
         accessTokenFactory: () => token,
       })
       .configureLogging(signalR.LogLevel.Debug)
@@ -83,7 +84,13 @@ export class DirectMessageService {
     this.hubConnection.on(
       'ReceiveMessage',
       (sender, receiverId, message, timestamp) => {
-        console.log('Message received:', sender,receiverId, message, timestamp);
+        console.log(
+          'Message received:',
+          sender,
+          receiverId,
+          message,
+          timestamp
+        );
         callback(sender, receiverId, message, timestamp); // You can call a callback here to update your UI
       }
     );

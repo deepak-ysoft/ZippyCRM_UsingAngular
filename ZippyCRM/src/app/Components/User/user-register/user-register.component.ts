@@ -37,7 +37,7 @@ export class UserRegisterComponent implements OnInit {
   constructor(private fb: FormBuilder) {
     this.user = new Users();
     this.loadUserData();
-
+    
     // for user register validation
     this.onSubmitForm = this.fb.group(
       {

@@ -31,6 +31,7 @@ import { FullCalendarComponent } from '@fullcalendar/angular';
 import { Documents } from '../../../../Models/cusDocuments.model';
 import { DocumentsService } from '../../../../Services/customerService/documents.service';
 import { CusDocumentsComponent } from '../cus-documents/cus-documents.component';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-customer-profile',
@@ -67,6 +68,7 @@ export class CustomerProfileComponent implements OnInit {
   @Output() tabChanged = new EventEmitter<string>();
   @ViewChild(CusAppointmentComponent)
   appointmentComponent!: CusAppointmentComponent;
+  private baseUrl = environment.apiUrl
 
   activeTab: string = '#profile-Contacts'; // Default tab
   calendarOptions: CalendarOptions = {
@@ -182,7 +184,7 @@ export class CustomerProfileComponent implements OnInit {
   ): void {
     this.http
       .get(
-        `https://localhost:7269/api/Customer/GetAppointments/${this.customerId}`
+        `${this.baseUrl}api/Customer/GetAppointments/${this.customerId}`
       )
       .subscribe(
         (data: any) => {

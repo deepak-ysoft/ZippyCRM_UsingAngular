@@ -1,13 +1,16 @@
 import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChatService {
+  
+  private baseUrl = environment.apiUrl;
   public connection: signalR.HubConnection = new signalR.HubConnectionBuilder()
-    .withUrl('https://localhost:7269/ChatHub', {
+    .withUrl(`${this.baseUrl}ChatHub`, {
       withCredentials: true, // Allow credentials
     })
     .configureLogging(signalR.LogLevel.Information)
