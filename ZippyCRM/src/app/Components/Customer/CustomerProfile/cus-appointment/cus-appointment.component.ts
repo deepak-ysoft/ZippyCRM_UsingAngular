@@ -18,12 +18,9 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
-  FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { Appointment } from '../../../../Models/cusAppointment.model';
